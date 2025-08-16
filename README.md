@@ -11,12 +11,12 @@ AnyRFC provides **production-ready, RFC-compliant protocol clients** that priori
 
 ## Why AnyRFC?
 
-🎯 **RFC Compliance First** - Every implementation passes comprehensive RFC test suites  
-⚡ **Modern Async** - Structured concurrency with AnyIO (no asyncio dependency hell)  
-🔒 **Security by Default** - TLS everywhere, proper certificate validation, secure authentication  
-🧪 **Battle-Tested** - Real-world interoperability testing against major servers  
-📝 **Type Safe** - Full mypy compliance with strict typing  
-🚀 **Production Ready** - Complete implementations, not toys or demos  
+🎯 **RFC Compliance First** - Every implementation passes comprehensive RFC test suites
+⚡ **Modern Async** - Structured concurrency with AnyIO (no asyncio dependency hell)
+🔒 **Security by Default** - TLS everywhere, proper certificate validation, secure authentication
+🧪 **Battle-Tested** - Real-world interoperability testing against major servers
+📝 **Type Safe** - Full mypy compliance with strict typing
+🚀 **Production Ready** - Complete implementations, not toys or demos
 
 ## Quick Start
 
@@ -31,8 +31,9 @@ from anyrfc import WebSocketClient
 async def main():
     async with WebSocketClient("wss://echo.websocket.org/") as ws:
         await ws.send_text("Hello, AnyRFC!")
-        message = await ws.receive()
-        print(f"Received: {message}")
+        async for message in ws.receive():
+            print(f"Received: {message}")
+            break  # Just get the first message
 
 anyio.run(main)
 ```
@@ -50,20 +51,21 @@ async with WebSocketClient("wss://api.example.com/ws") as ws:
     # Send different message types
     await ws.send_text("Hello!")
     await ws.send_binary(b"\\x00\\x01\\x02\\x03")
-    
+
     # Handle incoming messages
     async for message in ws.receive():
         if isinstance(message, str):
             print(f"Text: {message}")
         else:
             print(f"Binary: {message.hex()}")
-        
+
         if should_close:
             await ws.close(CloseCode.NORMAL_CLOSURE)
             break
 ```
 
 **Features:**
+
 - ✅ All frame types (text, binary, ping, pong, close)
 - ✅ Message fragmentation and reassembly
 - ✅ Proper client-side frame masking
@@ -82,13 +84,13 @@ from anyrfc import IMAPClient, SMTPClient
 async with IMAPClient("imap.gmail.com", use_tls=True) as imap:
     await imap.authenticate({"username": "user", "password": "pass"})
     await imap.select_mailbox("INBOX")
-    
+
     messages = await imap.search_messages("UNSEEN")
     for msg_id in messages[:5]:  # Get latest 5
         email = await imap.fetch_messages(str(msg_id), "BODY[]")
         print(f"Email {msg_id}: {email}")
 
-# SMTP - Send emails  
+# SMTP - Send emails
 async with SMTPClient("smtp.gmail.com", use_starttls=True) as smtp:
     await smtp.authenticate({"username": "user", "password": "pass"})
     await smtp.send_message(
@@ -112,7 +114,7 @@ async def websocket_with_timeout():
     async with anyio.create_task_group() as tg:
         # Connection with automatic cleanup
         tg.start_soon(websocket_handler)
-        
+
         # Heartbeat with cancellation scope
         with anyio.move_on_after(30):
             tg.start_soon(heartbeat_sender)
@@ -185,7 +187,7 @@ import json
 
 async def crypto_prices():
     uri = "wss://stream.binance.com:9443/ws/btcusdt@ticker"
-    
+
     async with WebSocketClient(uri) as ws:
         # Subscribe to Bitcoin price updates
         await ws.send_text(json.dumps({
@@ -193,7 +195,7 @@ async def crypto_prices():
             "params": ["btcusdt@ticker"],
             "id": 1
         }))
-        
+
         async for message in ws.receive():
             data = json.loads(message)
             if 'c' in data:  # Current price
@@ -210,14 +212,14 @@ async def email_monitor():
     async with IMAPClient("imap.gmail.com") as imap:
         await imap.authenticate({"username": "user", "password": "app_password"})
         await imap.select_mailbox("INBOX")
-        
+
         while True:
             # Check for new emails every 30 seconds
             unread = await imap.search_messages("UNSEEN")
             if unread:
                 print(f"📧 {len(unread)} new emails!")
                 # Process emails...
-            
+
             await anyio.sleep(30)
 ```
 
@@ -232,7 +234,7 @@ uv run pytest
 # RFC compliance tests
 uv run pytest tests/rfc_compliance/ -v
 
-# Real-server interoperability  
+# Real-server interoperability
 uv run pytest tests/interop/ -v
 
 # Type checking
@@ -247,29 +249,33 @@ uv run ruff check src/
 AnyRFC is tested against real servers:
 
 - ✅ **WebSocket**: echo.websocket.org, major WebSocket services
-- ✅ **IMAP**: Gmail, Outlook, major email providers  
+- ✅ **IMAP**: Gmail, Outlook, major email providers
 - ✅ **SMTP**: Gmail, SendGrid, major SMTP services
 
 ## Protocol Roadmap
 
 ### ✅ Phase 1: Foundation (Complete)
+
 - [x] WebSocket Client (RFC 6455) - **Production Ready**
 - [x] IMAP Client Foundation (RFC 9051)
 - [x] SMTP Client Foundation (RFC 5321)
 
 ### 🚧 Phase 2: Email Infrastructure (Next)
+
 - [ ] Complete IMAP with extensions (IDLE, SORT, THREAD)
 - [ ] MIME message composition (RFC 2045-2049)
 - [ ] SASL authentication framework (RFC 4422)
 - [ ] Advanced SMTP features (DKIM, SPF validation)
 
 ### 🔮 Phase 3: Modern Auth & Security
+
 - [ ] OAuth 2.0 client (RFC 6749/6750)
 - [ ] JWT handling (RFC 7519)
 - [ ] PKCE support (RFC 7636)
 - [ ] Device authorization flow (RFC 8628)
 
 ### 🔮 Phase 4: Advanced Protocols
+
 - [ ] SSH client suite (RFC 4251-4254)
 - [ ] SFTP file transfer
 - [ ] DNS-over-HTTPS (RFC 8484)
