@@ -99,6 +99,7 @@ notebook = [
 ]
 examples = [
     "python-dotenv>=1.1.1",
+    "pypdf2>=3.0.1",
 ]
 
 [tool.commitizen]
