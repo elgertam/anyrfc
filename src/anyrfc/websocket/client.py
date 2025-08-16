@@ -18,7 +18,8 @@ class WebSocketClient(ProtocolClient[Union[str, bytes]], RFCCompliance):
                  protocols: Optional[List[str]] = None,
                  extensions: Optional[List[str]] = None,
                  origin: Optional[str] = None,
-                 extra_headers: Optional[Dict[str, str]] = None):
+                 extra_headers: Optional[Dict[str, str]] = None,
+                 strict_rfc_validation: bool = True):
         super().__init__()
         self.uri = uri
         self.parsed_uri = URIParser.parse(uri)
@@ -26,6 +27,7 @@ class WebSocketClient(ProtocolClient[Union[str, bytes]], RFCCompliance):
         self.extensions = extensions or []
         self.origin = origin
         self.extra_headers = extra_headers or {}
+        self.strict_rfc_validation = strict_rfc_validation
         
         # Validate URI scheme
         if self.parsed_uri.scheme not in {'ws', 'wss'}:
@@ -247,10 +249,11 @@ class WebSocketClient(ProtocolClient[Union[str, bytes]], RFCCompliance):
         # Parse frame
         frame = WSFrame.from_bytes(full_frame_data)
         
-        if not frame.validate_rfc_compliance():
-            # Server frames should not be masked, so we need custom validation
-            if not self._validate_server_frame(frame):
-                raise ValueError("Received frame violates RFC 6455")
+        if self.strict_rfc_validation:
+            if not frame.validate_rfc_compliance():
+                # Server frames should not be masked, so we need custom validation
+                if not self._validate_server_frame(frame):
+                    raise ValueError("Received frame violates RFC 6455")
         
         return frame
     

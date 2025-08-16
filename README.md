@@ -186,20 +186,17 @@ from anyrfc import WebSocketClient
 import json
 
 async def crypto_prices():
-    uri = "wss://stream.binance.com:9443/ws/btcusdt@ticker"
+    # Binance public data stream (no authentication required)
+    uri = "wss://data-stream.binance.vision/ws/btcusdt@ticker"
 
-    async with WebSocketClient(uri) as ws:
-        # Subscribe to Bitcoin price updates
-        await ws.send_text(json.dumps({
-            "method": "SUBSCRIBE",
-            "params": ["btcusdt@ticker"],
-            "id": 1
-        }))
-
+    # Use relaxed validation for real-world servers
+    async with WebSocketClient(uri, strict_rfc_validation=False) as ws:
         async for message in ws.receive():
             data = json.loads(message)
             if 'c' in data:  # Current price
-                print(f"BTC Price: ${float(data['c']):,.2f}")
+                price = float(data['c'])
+                change = float(data['P'])  # 24hr change %
+                print(f"💰 BTC-USDT: ${price:,.2f} ({change:+.2f}%)")
 ```
 
 ### Email Monitoring Service

@@ -89,6 +89,12 @@ dev = [
     "commitizen>=4.8.3",
     "twine>=6.1.0",
 ]
+notebook = [
+    "jupyter>=1.0.0",
+    "ipykernel>=6.0.0",
+    "matplotlib>=3.7.0",
+    "pandas>=2.0.0",
+]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
