@@ -107,3 +107,6 @@ major_version_zero = true
 version_files = [
     "src/anyrfc/__init__.py:__version__"
 ]
+pre_bump_hooks = [
+    "uv lock"
+]
