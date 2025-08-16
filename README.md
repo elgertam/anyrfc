@@ -11,12 +11,12 @@ AnyRFC provides **production-ready, RFC-compliant protocol clients** that priori
 
 ## Why AnyRFC?
 
-🎯 **RFC Compliance First** - Every implementation passes comprehensive RFC test suites
-⚡ **Modern Async** - Structured concurrency with AnyIO (no asyncio dependency hell)
-🔒 **Security by Default** - TLS everywhere, proper certificate validation, secure authentication
-🧪 **Battle-Tested** - Real-world interoperability testing against major servers
-📝 **Type Safe** - Full mypy compliance with strict typing
-🚀 **Production Ready** - Complete implementations, not toys or demos
+🎯 **RFC Compliance First** - Every implementation passes comprehensive RFC test suites  
+⚡ **Modern Async** - Structured concurrency with AnyIO (no asyncio dependency hell)  
+🔒 **Security by Default** - TLS everywhere, proper certificate validation, secure authentication  
+🧪 **Battle-Tested** - Real-world interoperability testing against major servers  
+📝 **Type Safe** - Full mypy compliance with strict typing  
+🚀 **Production Ready** - Complete implementations, not toys or demos  
 
 ## Quick Start
 
