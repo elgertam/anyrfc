@@ -1,7 +1,7 @@
 """AnyRFC - Complete RFC-compliant protocol implementations using AnyIO structured concurrency."""
 
 # Version information
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 __author__ = "Andrew M. Elgert"
 __description__ = "RFC-compliant protocol clients using AnyIO structured concurrency"
 
