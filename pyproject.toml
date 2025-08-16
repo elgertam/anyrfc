@@ -1,7 +1,90 @@
 [project]
 name = "anyrfc"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.1.1"
+description = "Complete, RFC-compliant protocol clients using AnyIO structured concurrency"
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = []
+requires-python = ">=3.11"
+license = "MIT"
+authors = [
+    {name = "Andrew M. Elgert", email = "andrew@elgert.org"}
+]
+maintainers = [
+    {name = "Andrew M. Elgert", email = "andrew@elgert.org"}
+]
+keywords = [
+    "anyio", "rfc", "websocket", "imap", "smtp", "async", "protocol", "client",
+    "structured-concurrency", "rfc6455", "rfc9051", "rfc5321"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent", 
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Internet",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Communications",
+    "Topic :: Communications :: Email",
+    "Topic :: Security",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Networking",
+    "Framework :: AnyIO",
+    "Typing :: Typed",
+]
+dependencies = [
+    "anyio>=4.0.0",
+    "httpx>=0.25.0",
+    "typing-extensions>=4.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/elgertam/anyrfc"
+Documentation = "https://github.com/elgertam/anyrfc#readme"
+Repository = "https://github.com/elgertam/anyrfc.git"
+"Bug Tracker" = "https://github.com/elgertam/anyrfc/issues"
+Changelog = "https://github.com/elgertam/anyrfc/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
+    "coverage>=7.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+markers = [
+    "integration: marks tests as integration tests",
+    "interop: marks tests as interoperability tests", 
+    "unit: marks tests as unit tests",
+]
+
+[dependency-groups]
+dev = [
+    "twine>=6.1.0",
+]
