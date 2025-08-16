@@ -16,32 +16,29 @@ from .core import (
     RFCCompliance,
     AnyIOStreamHelpers,
     URIParser,
-    TLSHelper
+    TLSHelper,
 )
 
 __all__ = [
     # Version info
-    '__version__',
-    '__author__',
-    '__description__',
-
+    "__version__",
+    "__author__",
+    "__description__",
     # WebSocket
-    'WebSocketClient',
-    'WSFrame',
-    'OpCode',
-    'CloseCode',
-
+    "WebSocketClient",
+    "WSFrame",
+    "OpCode",
+    "CloseCode",
     # Email
-    'SMTPClient',
-    'IMAPClient',
-    'IMAPCommandBuilder',
-    'IMAPSequenceSet',
-
+    "SMTPClient",
+    "IMAPClient",
+    "IMAPCommandBuilder",
+    "IMAPSequenceSet",
     # Core
-    'ProtocolClient',
-    'ProtocolState',
-    'RFCCompliance',
-    'AnyIOStreamHelpers',
-    'URIParser',
-    'TLSHelper'
+    "ProtocolClient",
+    "ProtocolState",
+    "RFCCompliance",
+    "AnyIOStreamHelpers",
+    "URIParser",
+    "TLSHelper",
 ]

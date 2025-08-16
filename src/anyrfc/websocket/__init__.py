@@ -6,13 +6,13 @@ from .state_machine import WebSocketStateMachine, WSState, WSEvent
 from .handshake import WebSocketHandshake
 
 __all__ = [
-    'WebSocketClient',
-    'WSFrame',
-    'OpCode',
-    'CloseCode', 
-    'WSFrameBuilder',
-    'WebSocketStateMachine',
-    'WSState',
-    'WSEvent',
-    'WebSocketHandshake'
+    "WebSocketClient",
+    "WSFrame",
+    "OpCode",
+    "CloseCode",
+    "WSFrameBuilder",
+    "WebSocketStateMachine",
+    "WSState",
+    "WSEvent",
+    "WebSocketHandshake",
 ]

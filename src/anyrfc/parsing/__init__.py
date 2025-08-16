@@ -9,4 +9,4 @@ easy swapping of parsing backends.
 from .base import RFCParser, ParseError, ParseResult
 from .imap import IMAPParser
 
-__all__ = ['RFCParser', 'ParseError', 'ParseResult', 'IMAPParser']
+__all__ = ["RFCParser", "ParseError", "ParseResult", "IMAPParser"]

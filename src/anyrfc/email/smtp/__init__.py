@@ -2,8 +2,4 @@
 
 from .client import SMTPClient, SMTPState, SMTPResponseCode
 
-__all__ = [
-    'SMTPClient',
-    'SMTPState', 
-    'SMTPResponseCode'
-]
+__all__ = ["SMTPClient", "SMTPState", "SMTPResponseCode"]

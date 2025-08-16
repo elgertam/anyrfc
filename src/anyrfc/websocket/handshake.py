@@ -1,6 +1,6 @@
 """WebSocket handshake implementation per RFC 6455 Section 4."""
+
 # CRITICAL: ALL I/O OPERATIONS MUST USE ANYIO - NO ASYNCIO IMPORTS ALLOWED
-import anyio
 from anyio.abc import ByteStream
 from typing import Dict, List, Optional, Tuple
 import base64
@@ -9,6 +9,7 @@ import secrets
 from ..core.streams import AnyIOStreamHelpers
 from ..core.uri import ParsedURI
 from .. import __version__ as anyrfc_version
+
 
 class WebSocketHandshake:
     """WebSocket handshake per RFC 6455 Section 4."""
@@ -26,23 +27,27 @@ class WebSocketHandshake:
     def generate_key(self) -> str:
         """Generate Sec-WebSocket-Key per RFC 6455 Section 4.1."""
         # Must be 16 random bytes, base64 encoded
-        self.sec_websocket_key = base64.b64encode(secrets.token_bytes(16)).decode('ascii')
+        self.sec_websocket_key = base64.b64encode(secrets.token_bytes(16)).decode(
+            "ascii"
+        )
         return self.sec_websocket_key
 
     def calculate_accept_key(self, websocket_key: str) -> str:
         """Calculate Sec-WebSocket-Accept per RFC 6455 Section 4.2.2."""
         # Concatenate key with GUID and hash with SHA-1
         combined = websocket_key + self.WEBSOCKET_GUID
-        sha1_hash = hashlib.sha1(combined.encode('utf-8')).digest()
-        return base64.b64encode(sha1_hash).decode('ascii')
+        sha1_hash = hashlib.sha1(combined.encode("utf-8")).digest()
+        return base64.b64encode(sha1_hash).decode("ascii")
 
-    async def send_client_handshake(self,
-                                  stream: ByteStream,
-                                  parsed_uri: ParsedURI,
-                                  protocols: Optional[List[str]] = None,
-                                  extensions: Optional[List[str]] = None,
-                                  origin: Optional[str] = None,
-                                  extra_headers: Optional[Dict[str, str]] = None) -> None:
+    async def send_client_handshake(
+        self,
+        stream: ByteStream,
+        parsed_uri: ParsedURI,
+        protocols: Optional[List[str]] = None,
+        extensions: Optional[List[str]] = None,
+        origin: Optional[str] = None,
+        extra_headers: Optional[Dict[str, str]] = None,
+    ) -> None:
         """Send client handshake request per RFC 6455 Section 4.2.1."""
 
         # Generate WebSocket key
@@ -59,6 +64,7 @@ class WebSocketHandshake:
         if parsed_uri.query:
             # Convert query dict back to string
             from urllib.parse import urlencode
+
             query_items = []
             for key, values in parsed_uri.query.items():
                 if isinstance(values, list):
@@ -73,7 +79,7 @@ class WebSocketHandshake:
 
         # Required headers per RFC 6455
         port = parsed_uri.effective_port
-        default_port = (80 if parsed_uri.scheme == 'ws' else 443)
+        default_port = 80 if parsed_uri.scheme == "ws" else 443
         host = parsed_uri.hostname
         if port != default_port:
             host += f":{port}"
@@ -85,7 +91,7 @@ class WebSocketHandshake:
             "Sec-WebSocket-Key": self.sec_websocket_key,
             "Sec-WebSocket-Version": "13",
             "User-Agent": f"AnyRFC/{anyrfc_version} WebSocket Client",
-            "Cache-Control": "no-cache"
+            "Cache-Control": "no-cache",
         }
 
         # Optional headers
@@ -129,7 +135,9 @@ class WebSocketHandshake:
         if not status_line.startswith("HTTP/1.1 101"):
             # Show full response for debugging
             full_response = "\n".join(response_lines[:5])  # First 5 lines
-            raise ValueError(f"WebSocket handshake failed. Expected HTTP/1.1 101, got: {status_line}\nFull response:\n{full_response}")
+            raise ValueError(
+                f"WebSocket handshake failed. Expected HTTP/1.1 101, got: {status_line}\nFull response:\n{full_response}"
+            )
 
         # Parse headers
         headers = {}
@@ -144,10 +152,7 @@ class WebSocketHandshake:
         """Validate server response per RFC 6455 Section 4.2.2."""
 
         # Check required headers
-        required_headers = {
-            "upgrade": "websocket",
-            "connection": "upgrade"
-        }
+        required_headers = {"upgrade": "websocket", "connection": "upgrade"}
 
         for header, expected_value in required_headers.items():
             if header not in headers:
@@ -155,7 +160,9 @@ class WebSocketHandshake:
 
             # Connection header can contain multiple values
             if header == "connection":
-                connection_values = [v.strip().lower() for v in headers[header].split(",")]
+                connection_values = [
+                    v.strip().lower() for v in headers[header].split(",")
+                ]
                 if expected_value not in connection_values:
                     raise ValueError(f"Invalid {header} header: {headers[header]}")
             else:
@@ -196,13 +203,15 @@ class WebSocketHandshake:
 
         return extensions
 
-    async def perform_client_handshake(self,
-                                     stream: ByteStream,
-                                     parsed_uri: ParsedURI,
-                                     protocols: Optional[List[str]] = None,
-                                     extensions: Optional[List[str]] = None,
-                                     origin: Optional[str] = None,
-                                     extra_headers: Optional[Dict[str, str]] = None) -> Tuple[Optional[str], List[str]]:
+    async def perform_client_handshake(
+        self,
+        stream: ByteStream,
+        parsed_uri: ParsedURI,
+        protocols: Optional[List[str]] = None,
+        extensions: Optional[List[str]] = None,
+        origin: Optional[str] = None,
+        extra_headers: Optional[Dict[str, str]] = None,
+    ) -> Tuple[Optional[str], List[str]]:
         """Perform complete client handshake and return negotiated protocol and extensions."""
 
         # Send handshake request
