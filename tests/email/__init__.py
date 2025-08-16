@@ -1,1 +1,0 @@
-"""Email protocol test suite (SMTP, IMAP)."""

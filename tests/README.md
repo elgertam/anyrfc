@@ -1,25 +1,31 @@
 # AnyRFC Test Suite
 
-Comprehensive test suite for AnyRFC protocol implementations, organized by protocol and test type.
+Comprehensive test suite for AnyRFC protocol implementations, organized by test type and protocol.
 
 ## Test Organization
 
-### By Protocol
+### Current Structure
 ```
 tests/
-├── websocket/          # WebSocket (RFC 6455) tests
-├── email/              # Email protocol tests (SMTP, IMAP)
-├── core/               # Core framework tests
-└── conftest.py         # Shared test configuration
+├── conftest.py                    # Pytest configuration and shared fixtures
+├── unit/                          # Unit tests for individual components
+│   ├── core/                      # Core functionality tests
+│   ├── email/                     # Email protocol tests (IMAP, SMTP)
+│   │   └── imap/                  # IMAP-specific tests
+│   └── parsing/                   # Parser framework tests
+├── integration/                   # Integration tests with real services
+├── rfc_compliance/               # RFC compliance validation tests
+│   └── imap/                     # IMAP RFC 9051 compliance tests
+└── websocket/                    # WebSocket protocol tests
+    ├── unit/                     # WebSocket unit tests
+    ├── integration/              # WebSocket integration tests
+    └── compliance/               # WebSocket RFC 6455 compliance tests
 ```
 
-### By Test Type
-```
-protocol/
-├── unit/               # Unit tests (fast, isolated)
-├── integration/        # Integration tests (real servers)
-└── compliance/         # RFC compliance tests
-```
+### Design Principles
+- **Test Type First**: Unit, integration, and compliance tests are organized by type
+- **Protocol Specific**: WebSocket maintains its own structure due to comprehensive testing
+- **Consistent Structure**: All protocols follow the same organizational pattern
 
 ## Test Categories
 
@@ -55,22 +61,28 @@ uv run pytest tests/
 uv run pytest tests/websocket/
 
 # Email tests only  
-uv run pytest tests/email/
+uv run pytest tests/unit/email/
 
 # Core framework tests
-uv run pytest tests/core/
+uv run pytest tests/unit/core/
+
+# Parser framework tests
+uv run pytest tests/unit/parsing/
 ```
 
 ### By Test Type
 ```bash
 # Unit tests (fast)
-uv run pytest tests/ -m unit
+uv run pytest tests/unit/
 
 # Integration tests (require network)
-uv run pytest tests/ -m integration
+uv run pytest tests/integration/
 
-# Compliance tests
-uv run pytest tests/ -m compliance
+# RFC compliance tests
+uv run pytest tests/rfc_compliance/
+
+# WebSocket-specific tests
+uv run pytest tests/websocket/
 ```
 
 ### Specific Protocols
@@ -81,8 +93,11 @@ uv run pytest tests/websocket/compliance/
 # WebSocket real-world interoperability
 uv run pytest tests/websocket/integration/
 
-# Email protocol compliance
-uv run pytest tests/email/compliance/
+# IMAP RFC 9051 compliance
+uv run pytest tests/rfc_compliance/imap/
+
+# IMAP unit tests
+uv run pytest tests/unit/email/imap/
 ```
 
 ## Test Markers
@@ -91,6 +106,42 @@ uv run pytest tests/email/compliance/
 - `integration` - Integration tests requiring network access
 - `interop` - Interoperability tests with real servers
 - `compliance` - RFC compliance validation tests
+
+## Dependencies
+
+Test dependencies are managed in `pyproject.toml` under `[dependency-groups]`:
+
+### `dev` group
+- `pytest` - Test framework
+- `mypy` - Type checking  
+- `ruff` - Linting and formatting
+- `coverage` - Test coverage analysis
+- `autobahntestsuite` - WebSocket compliance testing
+- `commitizen` - Conventional commits
+- `twine` - Package publishing
+
+### `examples` group  
+- `python-dotenv` - Environment variable management for examples
+
+### `notebook` group
+- `jupyter` - Interactive notebooks
+- `pandas` - Data analysis
+- `matplotlib` - Plotting
+
+### Installation
+```bash
+# Development and testing
+uv sync --group dev
+
+# Example running
+uv sync --group examples  
+
+# Data analysis
+uv sync --group notebook
+
+# Multiple groups
+uv sync --group dev --group examples
+```
 
 ## Coverage Goals
 
