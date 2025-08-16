@@ -1,7 +1,7 @@
 """AnyRFC - Complete RFC-compliant protocol implementations using AnyIO structured concurrency."""
 
 # Version information
-__version__ = "0.1.1"
+__version__ = "0.1.4"
 __author__ = "Andrew M. Elgert"
 __description__ = "RFC-compliant protocol clients using AnyIO structured concurrency"
 
@@ -9,7 +9,7 @@ __description__ = "RFC-compliant protocol clients using AnyIO structured concurr
 from .websocket import WebSocketClient, WSFrame, OpCode, CloseCode
 from .email import SMTPClient, IMAPClient, IMAPCommandBuilder, IMAPSequenceSet
 
-# Import core utilities  
+# Import core utilities
 from .core import (
     ProtocolClient,
     ProtocolState,
@@ -22,21 +22,21 @@ from .core import (
 __all__ = [
     # Version info
     '__version__',
-    '__author__', 
+    '__author__',
     '__description__',
-    
+
     # WebSocket
     'WebSocketClient',
     'WSFrame',
     'OpCode',
     'CloseCode',
-    
+
     # Email
     'SMTPClient',
     'IMAPClient',
     'IMAPCommandBuilder',
     'IMAPSequenceSet',
-    
+
     # Core
     'ProtocolClient',
     'ProtocolState',

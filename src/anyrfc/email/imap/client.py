@@ -10,6 +10,9 @@ from ...core.streams import AnyIOStreamHelpers
 from ...core.tls import TLSHelper
 from .commands import IMAPCommand, IMAPCommandBuilder, IMAPSequenceSet
 from .responses import IMAPResponse, IMAPResponseParser, IMAPStatus, IMAPResponseType
+from .extensions import ExtensionManager
+from .mailbox import MailboxManager
+from .messages import MessageManager
 
 class IMAPState(Enum):
     """IMAP protocol states per RFC 9051."""
@@ -37,18 +40,25 @@ class IMAPClient(ProtocolClient[IMAPCommand], AuthenticationClient, RFCComplianc
         self._pending_responses: List[IMAPResponse] = []
         self._idle_mode = False
         
+        # Managers
+        self.extensions = ExtensionManager(self)
+        self.mailbox = MailboxManager(self)
+        self.messages = MessageManager(self)
+        
     def get_rfc_number(self) -> str:
         return "RFC 9051"
     
     async def validate_compliance(self) -> Dict[str, bool]:
         """Validate RFC 9051 compliance."""
-        # This would be implemented by the compliance testing framework
-        return {}
+        from .compliance import RFC9051Compliance
+        compliance = RFC9051Compliance(self)
+        return await compliance.validate_compliance()
     
     def get_test_vectors(self) -> Dict[str, Any]:
         """Return RFC 9051 test vectors."""
-        # This would be implemented by the compliance testing framework
-        return {}
+        from .compliance import RFC9051Compliance
+        compliance = RFC9051Compliance(self)
+        return compliance.get_test_vectors()
     
     @property
     def imap_state(self) -> IMAPState:
@@ -67,7 +77,7 @@ class IMAPClient(ProtocolClient[IMAPCommand], AuthenticationClient, RFCComplianc
     
     def has_capability(self, capability: str) -> bool:
         """Check if server has specific capability."""
-        return capability.upper() in self._capabilities
+        return capability.upper() in {cap.upper() for cap in self._capabilities}
     
     async def connect(self) -> None:
         """Establish IMAP connection per RFC 9051 using AnyIO."""
@@ -314,6 +324,21 @@ class IMAPClient(ProtocolClient[IMAPCommand], AuthenticationClient, RFCComplianc
                 # Handle continuation responses (for literals, authentication, etc.)
                 # For now, just continue reading
                 continue
+    
+    async def _send_command_no_wait(self, command: IMAPCommand) -> str:
+        """Send IMAP command without waiting for completion response."""
+        if not self._stream:
+            raise RuntimeError("Not connected")
+        
+        tag = f"A{self._tag_counter:04d}"
+        self._tag_counter += 1
+        
+        command_line = f"{tag} {command.to_string()}\\r\\n"
+        
+        # CRITICAL: Use AnyIO stream send only
+        await AnyIOStreamHelpers.send_all(self._stream, command_line)
+        
+        return tag
     
     async def _read_response(self) -> IMAPResponse:
         """Read IMAP response per RFC 9051 Section 7 using AnyIO."""

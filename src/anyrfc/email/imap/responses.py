@@ -132,19 +132,26 @@ class IMAPResponseParser:
     def parse_list_response(cls, response_line: str) -> Optional[Dict[str, Any]]:
         """Parse LIST response per RFC 9051 Section 6.3.9."""
         # Response format: * LIST (\\HasNoChildren) "/" "INBOX"
-        if response_line.startswith("* LIST"):
-            # Simple parsing - would need more sophisticated parsing for production
-            parts = response_line.split()
-            if len(parts) >= 4:
-                flags_str = parts[2]
-                delimiter = parts[3].strip('"')
-                mailbox = parts[4].strip('"')
-                
-                # Parse flags
-                flags = []
-                if flags_str.startswith('(') and flags_str.endswith(')'):
-                    flags_content = flags_str[1:-1]
-                    flags = [f.strip() for f in flags_content.split()]
+        if response_line.startswith("* LIST "):
+            # More robust parsing
+            # Find the flags parentheses
+            start_paren = response_line.find('(')
+            end_paren = response_line.find(')', start_paren)
+            
+            if start_paren == -1 or end_paren == -1:
+                return None
+            
+            # Extract flags
+            flags_str = response_line[start_paren+1:end_paren]
+            flags = [f.strip() for f in flags_str.split()] if flags_str else []
+            
+            # Find delimiter and mailbox after the flags
+            remainder = response_line[end_paren+1:].strip()
+            parts = remainder.split(None, 1)  # Split into max 2 parts
+            
+            if len(parts) >= 2:
+                delimiter = parts[0].strip('"')
+                mailbox = parts[1].strip('"')
                 
                 return {
                     'flags': flags,
