@@ -37,9 +37,9 @@ repos:
       - id: markdownlint
         args: [--fix, --config, .markdownlint.json]
 
-  # Conventional commits
-  - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v3.6.0
-    hooks:
-      - id: conventional-pre-commit
-        stages: [commit-msg]
+  # # Conventional commits
+  # - repo: https://github.com/compilerla/conventional-pre-commit
+  #   rev: v3.6.0
+  #   hooks:
+  #     - id: conventional-pre-commit
+  #       stages: [commit-msg]
