@@ -19,7 +19,7 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent", 
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -48,7 +48,7 @@ Homepage = "https://github.com/elgertam/anyrfc"
 Documentation = "https://github.com/elgertam/anyrfc#readme"
 Repository = "https://github.com/elgertam/anyrfc.git"
 "Bug Tracker" = "https://github.com/elgertam/anyrfc/issues"
-Changelog = "https://github.com/elgertam/anyrfc/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/elgertam/anyrfc/blob/master/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
@@ -80,7 +80,7 @@ python_files = ["test_*.py"]
 python_functions = ["test_*"]
 markers = [
     "integration: marks tests as integration tests",
-    "interop: marks tests as interoperability tests", 
+    "interop: marks tests as interoperability tests",
     "unit: marks tests as unit tests",
 ]
 
