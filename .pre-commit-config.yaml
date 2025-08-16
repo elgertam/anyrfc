@@ -4,6 +4,7 @@ repos:
     rev: v5.0.0
     hooks:
       - id: trailing-whitespace
+        exclude: '\.md$'  # Exclude markdown files - let markdownlint handle them
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
@@ -34,7 +35,7 @@ repos:
     rev: v0.42.0
     hooks:
       - id: markdownlint
-        args: [--fix]
+        args: [--fix, --config, .markdownlint.json]
 
   # Conventional commits
   - repo: https://github.com/compilerla/conventional-pre-commit
