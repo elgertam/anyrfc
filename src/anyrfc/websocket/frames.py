@@ -250,6 +250,8 @@ class WSFrameBuilder:
     @staticmethod
     def ping_frame(payload: bytes = b'') -> WSFrame:
         """Create ping frame."""
+        if len(payload) > 125:
+            raise ValueError("Control frame payload cannot exceed 125 bytes")
         return WSFrame(
             fin=True,
             opcode=OpCode.PING,
@@ -260,6 +262,8 @@ class WSFrameBuilder:
     @staticmethod
     def pong_frame(payload: bytes = b'') -> WSFrame:
         """Create pong frame."""
+        if len(payload) > 125:
+            raise ValueError("Control frame payload cannot exceed 125 bytes")
         return WSFrame(
             fin=True,
             opcode=OpCode.PONG,
@@ -273,6 +277,9 @@ class WSFrameBuilder:
         payload = struct.pack('!H', code.value)
         if reason:
             payload += reason.encode('utf-8')
+        
+        if len(payload) > 125:
+            raise ValueError("Control frame payload cannot exceed 125 bytes")
         
         return WSFrame(
             fin=True,
