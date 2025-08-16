@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-AnyRFC provides **production-ready, RFC-compliant protocol clients** that prioritize correctness, security, and modern
+AnyRFC provides **RFC-compliant protocol clients** that prioritize correctness, security, and modern
 async patterns. Built exclusively with [AnyIO](https://anyio.readthedocs.io/) for structured concurrency.
 
 ## Why AnyRFC?
@@ -17,7 +17,7 @@ async patterns. Built exclusively with [AnyIO](https://anyio.readthedocs.io/) fo
 🔒 **Security by Default** - TLS everywhere, proper certificate validation, secure authentication  
 🧪 **Battle-Tested** - Real-world interoperability testing against major servers  
 📝 **Type Safe** - Full mypy compliance with strict typing  
-🚀 **Production Ready** - Complete implementations, not toys or demos  
+🚀 **Complete** - Full implementations, not toys or demos  
 
 ## Quick Start
 
@@ -41,7 +41,7 @@ anyio.run(main)
 
 ## What's Included
 
-### 🌐 WebSocket Client (RFC 6455) - **Production Ready**
+### 🌐 WebSocket Client (RFC 6455)
 
 Complete WebSocket implementation with all RFC 6455 features:
 
@@ -74,7 +74,7 @@ async with WebSocketClient("wss://api.example.com/ws") as ws:
 - ✅ Graceful connection handling
 - ✅ Real-server compatibility
 
-### 📧 Email Clients (IMAP & SMTP) - **Production Ready**
+### 📧 Email Clients (IMAP & SMTP)
 
 Battle-tested email clients with full RFC compliance and real-world Gmail compatibility:
 
@@ -109,7 +109,7 @@ async with SMTPClient("smtp.gmail.com", use_starttls=True) as smtp:
         to_addrs=["recipient@example.com"],
         message="""Subject: Hello from AnyRFC!
 
-This email was sent using AnyRFC's production-ready SMTP client!
+This email was sent using AnyRFC's SMTP client!
 """
     )
 ```
@@ -122,7 +122,7 @@ This email was sent using AnyRFC's production-ready SMTP client!
 - ✅ **Attachment extraction**: Binary BLOB downloads (PDFs, images, etc.)
 - ✅ **Gmail compatibility**: Tested with live Gmail IMAP servers
 - ✅ **Extension support**: IDLE, SORT, THREAD, CONDSTORE, QRESYNC
-- ✅ **Production proven**: Handles 178KB+ attachments and complex operations
+- ✅ **Battle-tested**: Handles 178KB+ attachments and complex operations
 
 ## Architecture Highlights
 
@@ -290,13 +290,13 @@ AnyRFC is extensively tested against production servers:
 
 ### ✅ Phase 1: WebSocket Foundation (Complete)
 
-- [x] WebSocket Client (RFC 6455) - **Production Ready**
+- [x] WebSocket Client (RFC 6455)
 - [x] Autobahn test suite compliance
 - [x] Real-world server compatibility
 
 ### ✅ Phase 2: Email Infrastructure (Complete)
 
-- [x] **IMAP Client (RFC 9051) - Production Ready**
+- [x] **IMAP Client (RFC 9051)**
   - [x] Complete email operations (read, flag, search, delete)
   - [x] Draft creation with literal continuation
   - [x] Attachment extraction (binary BLOBs)
@@ -324,7 +324,7 @@ AnyRFC is extensively tested against production servers:
 
 ## Performance
 
-AnyRFC is built for production workloads:
+AnyRFC is built for high-performance workloads:
 
 ```python
 # Concurrent WebSocket connections
