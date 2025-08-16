@@ -306,7 +306,7 @@ class IMAPClient(ProtocolClient[IMAPCommand], AuthenticationClient, RFCComplianc
         tag = f"A{self._tag_counter:04d}"
         self._tag_counter += 1
         
-        command_line = f"{tag} {command.to_string()}\\r\\n"
+        command_line = f"{tag} {command.to_string()}\r\n"
         
         # CRITICAL: Use AnyIO stream send only
         await AnyIOStreamHelpers.send_all(self._stream, command_line)
@@ -333,7 +333,7 @@ class IMAPClient(ProtocolClient[IMAPCommand], AuthenticationClient, RFCComplianc
         tag = f"A{self._tag_counter:04d}"
         self._tag_counter += 1
         
-        command_line = f"{tag} {command.to_string()}\\r\\n"
+        command_line = f"{tag} {command.to_string()}\r\n"
         
         # CRITICAL: Use AnyIO stream send only
         await AnyIOStreamHelpers.send_all(self._stream, command_line)

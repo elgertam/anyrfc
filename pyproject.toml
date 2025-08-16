@@ -39,7 +39,9 @@ classifiers = [
 ]
 dependencies = [
     "anyio>=4.0.0",
+    "arpeggio>=2.0.2",
     "httpx>=0.25.0",
+    "python-dotenv>=1.1.1",
     "typing-extensions>=4.0.0",
 ]
 
