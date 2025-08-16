@@ -83,6 +83,7 @@ class TestIMAPClient:
         assert "IMAP4rev1" in capabilities
         assert "IDLE" in capabilities
     
+    @pytest.mark.anyio
     async def test_state_transitions(self, imap_client):
         """Test protocol state transitions."""
         assert imap_client.state == ProtocolState.DISCONNECTED
@@ -193,7 +194,7 @@ class TestMessageManager:
         assert not info.is_deleted
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 class TestIMAPCompliance:
     """Test RFC 9051 compliance."""
     
@@ -221,6 +222,7 @@ class TestIMAPCompliance:
 class TestIMAPIntegration:
     """Integration tests for IMAP client."""
     
+    @pytest.mark.anyio
     async def test_mock_connection_flow(self, imap_client, mock_stream):
         """Test connection flow with mock stream."""
         # Mock the connection
@@ -235,6 +237,7 @@ class TestIMAPIntegration:
         # since we need to mock the entire protocol
         assert imap_client._stream is not None
     
+    @pytest.mark.anyio
     async def test_command_response_cycle(self, imap_client, mock_stream):
         """Test command/response cycle."""
         imap_client._stream = mock_stream

@@ -90,6 +90,7 @@ async def get_test_results(test_server_port: int = 9001):
     True,  # Skip by default - requires manual Autobahn server setup
     reason="Requires Autobahn test server to be running. Run manually with: wstest -m fuzzingserver"
 )
+@pytest.mark.anyio
 async def test_autobahn_compliance_sample():
     """Sample Autobahn compliance test.
     

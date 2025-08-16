@@ -5,6 +5,7 @@ from anyrfc import WebSocketClient
 
 
 @pytest.mark.integration
+@pytest.mark.anyio
 async def test_ping_with_valid_payload():
     """Test ping with valid payload size."""
     uri = "wss://echo.websocket.org/"
@@ -18,7 +19,8 @@ async def test_ping_with_valid_payload():
         await ws.ping(max_payload)
 
 
-@pytest.mark.integration  
+@pytest.mark.integration
+@pytest.mark.anyio
 async def test_ping_oversized_payload_rejected():
     """Test that oversized ping payload is rejected."""
     uri = "wss://echo.websocket.org/"

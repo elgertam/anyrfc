@@ -309,7 +309,7 @@ class TestRFC9051Literals:
         assert literal.to_imap_string() == "{0}"
 
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 class TestRFC9051ComplianceFramework:
     """Test the RFC 9051 compliance testing framework."""
     

@@ -7,6 +7,7 @@ from anyrfc.websocket import WebSocketClient, CloseCode
 class TestWebSocketInterop:
     """Test against real WebSocket server implementations."""
     
+    @pytest.mark.anyio
     async def test_echo_websocket_org_connection(self):
         """Test basic connection to wss://echo.websocket.org/"""
         client = WebSocketClient("wss://echo.websocket.org/")
@@ -18,6 +19,7 @@ class TestWebSocketInterop:
         finally:
             await client.disconnect()
     
+    @pytest.mark.anyio
     async def test_echo_websocket_org_text_message(self):
         """Test text message echo."""
         client = WebSocketClient("wss://echo.websocket.org/")
@@ -42,6 +44,7 @@ class TestWebSocketInterop:
         finally:
             await client.disconnect()
     
+    @pytest.mark.anyio
     async def test_echo_websocket_org_binary_message(self):
         """Test binary message echo."""
         client = WebSocketClient("wss://echo.websocket.org/")
@@ -68,6 +71,7 @@ class TestWebSocketInterop:
         finally:
             await client.disconnect()
     
+    @pytest.mark.anyio
     async def test_websocket_ping_pong(self):
         """Test ping/pong frames."""
         client = WebSocketClient("wss://echo.websocket.org/")
@@ -86,6 +90,7 @@ class TestWebSocketInterop:
         finally:
             await client.disconnect()
     
+    @pytest.mark.anyio
     async def test_websocket_close_handshake(self):
         """Test proper close handshake."""
         client = WebSocketClient("wss://echo.websocket.org/")
@@ -116,6 +121,7 @@ class TestWebSocketInterop:
         # Skip ws:// test as it redirects to https and causes issues
         # "ws://echo.websocket.org/",
     ])
+    @pytest.mark.anyio
     async def test_multiple_websocket_servers(self, uri):
         """Test against multiple WebSocket server implementations."""
         client = WebSocketClient(uri)
