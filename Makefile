@@ -1,4 +1,4 @@
-.PHONY: clean build build-clean test lint typecheck bump
+.PHONY: clean build build-clean test lint typecheck bump deploy testdeploy
 
 # Clean all build artifacts and caches
 clean:
@@ -26,3 +26,9 @@ typecheck:
 # Bump version using commitizen
 bump:
 	uv run cz bump --yes
+
+deploy: build-clean
+	uv run twine upload dist/*
+
+testdeploy: build-clean
+	uv run twine upload --repository testpypi dist/*
