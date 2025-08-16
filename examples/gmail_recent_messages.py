@@ -18,7 +18,6 @@ Setup:
 """
 import anyio
 import os
-import re
 from datetime import datetime
 from typing import Dict, Any
 
@@ -30,6 +29,7 @@ except ImportError:
     print("Warning: python-dotenv not installed. Using os.environ directly.")
 
 from anyrfc.email.imap import IMAPClient
+from anyrfc.parsing import IMAPParser
 
 
 async def get_recent_gmail_messages() -> None:
@@ -110,73 +110,81 @@ async def get_recent_gmail_messages() -> None:
         print(f"\nRetrieved {len(messages)} messages:")
         print("=" * 80)
         
+        # Create parser for processing FETCH responses
+        parser = IMAPParser()
+        
         # Display messages in reverse order (newest first)
         for msg in reversed(messages):
-            # Parse the fetch_data string for basic info
-            fetch_data = msg.get("fetch_data", "")
-            message_num = msg.get("message_number", "Unknown")
+            # Use the new PEG parser instead of regex
+            raw_line = msg.get("raw", "")
             
-            # Extract UID
-            uid = "Unknown"
-            uid_match = re.search(r'UID (\d+)', fetch_data)
-            if uid_match:
-                uid = uid_match.group(1)
-            
-            # Extract flags
-            flags_str = ""
-            flags_match = re.search(r'FLAGS \(([^)]+)\)', fetch_data)
-            if flags_match:
-                flags_str = flags_match.group(1)
-            
-            # Extract internal date
-            date_str = "Unknown"
-            date_match = re.search(r'INTERNALDATE "([^"]+)"', fetch_data)
-            if date_match:
-                date_str = date_match.group(1)
-            
-            # Extract subject from envelope
-            subject = "No Subject"
-            # ENVELOPE format: ("date" "subject" (from) (sender) (reply-to) (to) ...)
-            envelope_match = re.search(r'ENVELOPE \("([^"]*)" "([^"]*)"', fetch_data)
-            if envelope_match:
-                subject = envelope_match.group(2) or "No Subject"
-            
-            # Extract from address from envelope (simplified)
-            from_addr = "Unknown"
-            # Look for the from field in envelope: (("name" NIL "mailbox" "host"))
-            from_match = re.search(r'ENVELOPE \("[^"]*" "[^"]*" \(\(("[^"]*"|NIL) NIL "([^"]*)" "([^"]*)"\)\)', fetch_data)
-            if from_match and len(from_match.groups()) >= 3:
-                name = from_match.group(1)
-                mailbox = from_match.group(2) 
-                host = from_match.group(3)
-                if name and name != "NIL":
-                    name = name.strip('"')
-                    from_addr = f"{name} <{mailbox}@{host}>"
+            if raw_line:
+                # Parse the raw FETCH response line
+                parse_result = parser.parse_fetch_response(raw_line)
+                
+                if parse_result.success:
+                    fetch_response = parse_result.value
+                    
+                    print(f"Message: {fetch_response.message_number}")
+                    print(f"UID: {fetch_response.uid or 'Unknown'}")
+                    print(f"Flags: {fetch_response.flags or []}")
+                    print(f"Internal Date: {fetch_response.internal_date or 'Unknown'}")
+                    
+                    
+                    # Display structured envelope data
+                    if fetch_response.envelope:
+                        env = fetch_response.envelope
+                        print(f"Subject: {env.subject or 'None'}")
+                        
+                        # Format From field nicely
+                        if env.from_addr:
+                            from_list = []
+                            for addr in env.from_addr:
+                                if addr.get('name') and addr.get('email'):
+                                    from_list.append(f"{addr['name']} <{addr['email']}>")
+                                elif addr.get('email'):
+                                    from_list.append(addr['email'])
+                                else:
+                                    from_list.append(str(addr))
+                            print(f"From: {', '.join(from_list)}")
+                        else:
+                            print("From: None")
+                            
+                        print(f"Date: {env.date or 'None'}")
+                        if env.message_id:
+                            print(f"Message-ID: {env.message_id}")
+                    else:
+                        print("Envelope: No data available")
+                        
+                    # Show BODYSTRUCTURE with improved formatting
+                    if fetch_response.body_structure:
+                        body = fetch_response.body_structure
+                        if isinstance(body, dict):
+                            content_type = body.get('content_type', 'unknown')
+                            is_multipart = body.get('is_multipart', False)
+                            size = body.get('size')
+                            
+                            if is_multipart:
+                                parts_count = len(body.get('parts', []))
+                                print(f"Body: {content_type} ({parts_count} parts)")
+                            else:
+                                size_str = f", {size} bytes" if size else ""
+                                print(f"Body: {content_type}{size_str}")
+                        else:
+                            print(f"Body Structure: Available ({len(str(body))} chars)")
+                    else:
+                        print("Body Structure: Not available")
+                        
+                    print("-" * 80)
                 else:
-                    from_addr = f"{mailbox}@{host}"
-            
-            # Format flags
-            flag_symbols = []
-            if "\\Seen" in flags_str:
-                flag_symbols.append("📖")  # Read
+                    print(f"Parse error: {parse_result.error}")
+                    print(f"Raw line: {raw_line}")
+                    print("-" * 80)
             else:
-                flag_symbols.append("📧")  # Unread
-            
-            if "\\Flagged" in flags_str:
-                flag_symbols.append("⭐")  # Flagged
-            
-            if "\\Answered" in flags_str:
-                flag_symbols.append("↩️")  # Replied
-            
-            flags_display = " ".join(flag_symbols) if flag_symbols else "📧"
-            
-            print(f"Message: {message_num}")
-            print(f"UID: {uid}")
-            print(f"From: {from_addr}")
-            print(f"Subject: {subject}")
-            print(f"Date: {date_str}")
-            print(f"Flags: {flags_display}")
-            print("-" * 80)
+                # Fallback for messages without raw data
+                print(f"Message: {msg.get('message_number', 'Unknown')}")
+                print(f"No raw data available for parsing")
+                print("-" * 80)
         
         print(f"\nSuccessfully retrieved {len(messages)} recent messages from Gmail!")
         

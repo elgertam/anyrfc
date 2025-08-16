@@ -3,7 +3,7 @@ Base parsing interfaces and types for AnyRFC.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional
 from dataclasses import dataclass
 from enum import Enum
 

@@ -5,7 +5,7 @@ This module defines RFC 9051 compliant IMAP grammar rules.
 """
 
 from .._vendor.arpeggio import Optional as ArpeggioOptional, \
-    ZeroOrMore, OneOrMore, EOF
+    ZeroOrMore, OneOrMore
 from .._vendor.arpeggio import RegExMatch as _
 
 
@@ -29,9 +29,8 @@ def literal(): return '{', number, '}', crlf, _(".*", multiline=True)
 def string(): return [quoted_string, literal, atom]
 def nstring(): return [string, "NIL"]
 
-# Lists
-def sp_list_item(): return sp, [string, "NIL", paren_list]
-def paren_list(): return '(', ArpeggioOptional([string, "NIL", paren_list], ZeroOrMore(sp_list_item)), ')'
+# Lists - simplified to handle nested structures better  
+def paren_list(): return '(', ZeroOrMore([string, "NIL", sp, paren_list]), ')'
 
 # Flags
 def flag_keyword(): return _("\\\\[A-Za-z]+")
@@ -44,7 +43,6 @@ def uid_item(): return "UID", sp, nz_number
 def flags_item(): return "FLAGS", sp, flag_list  
 def internaldate_item(): return "INTERNALDATE", sp, quoted_string
 def envelope_item(): return "ENVELOPE", sp, envelope
-def bodystructure_item(): return "BODYSTRUCTURE", sp, paren_list
 
 # Address structure: (name route mailbox host)
 def address(): return '(', nstring, sp, nstring, sp, nstring, sp, nstring, ')'
@@ -79,6 +77,52 @@ def text(): return _(".*")
 def response_tagged(): return tag, sp, resp_cond_state, sp, text
 def response_untagged(): return '*', sp, text  
 def response_continuation(): return '+', sp, text
+
+# RFC 9051 BODYSTRUCTURE ABNF Grammar Implementation
+
+# Numbers for BODYSTRUCTURE
+def number64(): return number  # Same as number for our purposes
+
+# Media types
+def media_basic(): return quoted_string, sp, quoted_string  # type/subtype
+def media_message(): return '"MESSAGE"', sp, '"', ["RFC822", "GLOBAL"], '"'
+def media_text(): return '"TEXT"', sp, quoted_string
+def media_subtype(): return quoted_string
+
+# Body field definitions
+def body_fld_param(): return ["(", string, sp, string, ZeroOrMore(sp, string, sp, string), ")", "NIL"]
+def body_fld_id(): return nstring
+def body_fld_desc(): return nstring
+def body_fld_enc(): return ['"', ["7BIT", "8BIT", "BINARY", "BASE64", "QUOTED-PRINTABLE"], '"', string]
+def body_fld_octets(): return number
+def body_fld_lines(): return number64
+def body_fld_md5(): return nstring
+def body_fld_dsp(): return ["(", string, sp, body_fld_param, ")", "NIL"]
+def body_fld_lang(): return [nstring, "(", string, ZeroOrMore(sp, string), ")"]
+def body_fld_loc(): return nstring
+
+# Body extensions
+def body_extension(): return [nstring, number, number64, "(", body_extension, ZeroOrMore(sp, body_extension), ")"]
+
+# Core body fields
+def body_fields(): return body_fld_param, sp, body_fld_id, sp, body_fld_desc, sp, body_fld_enc, sp, body_fld_octets
+
+# Body extensions
+def body_ext_1part(): return body_fld_md5, ArpeggioOptional(sp, body_fld_dsp, ArpeggioOptional(sp, body_fld_lang, ArpeggioOptional(sp, body_fld_loc, ZeroOrMore(sp, body_extension))))
+def body_ext_mpart(): return body_fld_param, ArpeggioOptional(sp, body_fld_dsp, ArpeggioOptional(sp, body_fld_lang, ArpeggioOptional(sp, body_fld_loc, ZeroOrMore(sp, body_extension))))
+
+# Body types
+def body_type_basic(): return media_basic, sp, body_fields
+def body_type_msg(): return media_message, sp, body_fields, sp, envelope, sp, body, sp, body_fld_lines
+def body_type_text(): return media_text, sp, body_fields, sp, body_fld_lines
+def body_type_1part(): return [body_type_basic, body_type_msg, body_type_text], ArpeggioOptional(sp, body_ext_1part)
+def body_type_mpart(): return OneOrMore(body), sp, media_subtype, ArpeggioOptional(sp, body_ext_mpart)
+
+# Main body definition (RFC 9051 compliant)
+def body(): return "(", [body_type_1part, body_type_mpart], ")"
+
+# BODYSTRUCTURE - Use simplified nested list structure for robustness
+def bodystructure_item(): return "BODYSTRUCTURE", sp, paren_list
 
 # Top level response
 def response(): return [fetch_response, response_tagged, response_untagged, response_continuation]
