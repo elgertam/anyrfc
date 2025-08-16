@@ -74,6 +74,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compatible with major IMAP/SMTP servers
 
 [0.1.1]: https://github.com/elgertam/anyrfc/releases/tag/v0.1.1
+## v0.1.3 (2025-08-16)
+
+### Fix
+
+- Updates from cleaned up examples
+
 ## v0.1.2 (2025-08-15)
 
 ### Fix
