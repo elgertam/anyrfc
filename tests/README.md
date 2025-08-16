@@ -5,7 +5,8 @@ Comprehensive test suite for AnyRFC protocol implementations, organized by test 
 ## Test Organization
 
 ### Current Structure
-```
+
+```dir
 tests/
 ├── conftest.py                    # Pytest configuration and shared fixtures
 ├── unit/                          # Unit tests for individual components
@@ -23,6 +24,7 @@ tests/
 ```
 
 ### Design Principles
+
 - **Test Type First**: Unit, integration, and compliance tests are organized by type
 - **Protocol Specific**: WebSocket maintains its own structure due to comprehensive testing
 - **Consistent Structure**: All protocols follow the same organizational pattern
@@ -30,20 +32,26 @@ tests/
 ## Test Categories
 
 ### 🔧 Unit Tests
+
 Fast, isolated tests for individual components:
+
 - Frame parsing/construction
 - Protocol state machines
 - URI parsing
 - TLS helpers
 
-### 🌐 Integration Tests  
+### 🌐 Integration Tests
+
 Tests against real servers and services:
+
 - Live WebSocket connections (Binance, Kraken)
 - Email server connections
 - Interoperability validation
 
 ### 📋 Compliance Tests
+
 RFC specification compliance validation:
+
 - Official test vectors
 - Protocol compliance checks
 - Autobahn Testsuite integration
@@ -51,16 +59,18 @@ RFC specification compliance validation:
 ## Running Tests
 
 ### All Tests
+
 ```bash
 uv run pytest tests/
 ```
 
 ### By Protocol
+
 ```bash
 # WebSocket tests only
 uv run pytest tests/websocket/
 
-# Email tests only  
+# Email tests only
 uv run pytest tests/unit/email/
 
 # Core framework tests
@@ -71,6 +81,7 @@ uv run pytest tests/unit/parsing/
 ```
 
 ### By Test Type
+
 ```bash
 # Unit tests (fast)
 uv run pytest tests/unit/
@@ -86,6 +97,7 @@ uv run pytest tests/websocket/
 ```
 
 ### Specific Protocols
+
 ```bash
 # RFC 6455 WebSocket compliance
 uv run pytest tests/websocket/compliance/
@@ -112,29 +124,33 @@ uv run pytest tests/unit/email/imap/
 Test dependencies are managed in `pyproject.toml` under `[dependency-groups]`:
 
 ### `dev` group
+
 - `pytest` - Test framework
-- `mypy` - Type checking  
+- `mypy` - Type checking
 - `ruff` - Linting and formatting
 - `coverage` - Test coverage analysis
 - `autobahntestsuite` - WebSocket compliance testing
 - `commitizen` - Conventional commits
 - `twine` - Package publishing
 
-### `examples` group  
+### `examples` group
+
 - `python-dotenv` - Environment variable management for examples
 
 ### `notebook` group
+
 - `jupyter` - Interactive notebooks
 - `pandas` - Data analysis
 - `matplotlib` - Plotting
 
 ### Installation
+
 ```bash
 # Development and testing
 uv sync --group dev
 
 # Example running
-uv sync --group examples  
+uv sync --group examples
 
 # Data analysis
 uv sync --group notebook

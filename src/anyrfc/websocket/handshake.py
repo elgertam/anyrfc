@@ -27,9 +27,7 @@ class WebSocketHandshake:
     def generate_key(self) -> str:
         """Generate Sec-WebSocket-Key per RFC 6455 Section 4.1."""
         # Must be 16 random bytes, base64 encoded
-        self.sec_websocket_key = base64.b64encode(secrets.token_bytes(16)).decode(
-            "ascii"
-        )
+        self.sec_websocket_key = base64.b64encode(secrets.token_bytes(16)).decode("ascii")
         return self.sec_websocket_key
 
     def calculate_accept_key(self, websocket_key: str) -> str:
@@ -160,9 +158,7 @@ class WebSocketHandshake:
 
             # Connection header can contain multiple values
             if header == "connection":
-                connection_values = [
-                    v.strip().lower() for v in headers[header].split(",")
-                ]
+                connection_values = [v.strip().lower() for v in headers[header].split(",")]
                 if expected_value not in connection_values:
                     raise ValueError(f"Invalid {header} header: {headers[header]}")
             else:
@@ -215,9 +211,7 @@ class WebSocketHandshake:
         """Perform complete client handshake and return negotiated protocol and extensions."""
 
         # Send handshake request
-        await self.send_client_handshake(
-            stream, parsed_uri, protocols, extensions, origin, extra_headers
-        )
+        await self.send_client_handshake(stream, parsed_uri, protocols, extensions, origin, extra_headers)
 
         # Receive and validate response
         response_headers = await self.receive_server_response(stream)

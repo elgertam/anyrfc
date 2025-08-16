@@ -95,9 +95,7 @@ class WebSocketClient(ProtocolClient[Union[str, bytes]], RFCCompliance):
             # CRITICAL: Use ONLY AnyIO for network I/O
             if self.parsed_uri.scheme == "wss":
                 tls_context = TLSHelper.create_default_client_context()
-                self._stream = await anyio.connect_tcp(
-                    hostname, port, tls=True, ssl_context=tls_context
-                )
+                self._stream = await anyio.connect_tcp(hostname, port, tls=True, ssl_context=tls_context)
             else:
                 self._stream = await anyio.connect_tcp(hostname, port)
 
@@ -158,9 +156,7 @@ class WebSocketClient(ProtocolClient[Union[str, bytes]], RFCCompliance):
     async def ping(self, payload: bytes = b"") -> None:
         """Send ping frame per RFC 6455 Section 5.5.2."""
         if not self._ws_state_machine.can_send_control():
-            raise RuntimeError(
-                f"Cannot send control frames in state: {self.websocket_state}"
-            )
+            raise RuntimeError(f"Cannot send control frames in state: {self.websocket_state}")
 
         if len(payload) > 125:
             raise ValueError("Ping payload cannot exceed 125 bytes")
@@ -168,9 +164,7 @@ class WebSocketClient(ProtocolClient[Union[str, bytes]], RFCCompliance):
         frame = WSFrameBuilder.ping_frame(payload)
         await self._send_frame(frame)
 
-    async def close(
-        self, code: CloseCode = CloseCode.NORMAL_CLOSURE, reason: str = ""
-    ) -> None:
+    async def close(self, code: CloseCode = CloseCode.NORMAL_CLOSURE, reason: str = "") -> None:
         """Send close frame per RFC 6455 Section 7."""
         if not self._ws_state_machine.can_send_control():
             return  # Already closing or closed
@@ -182,9 +176,7 @@ class WebSocketClient(ProtocolClient[Union[str, bytes]], RFCCompliance):
 
     async def receive(self) -> AsyncIterator[Union[str, bytes]]:
         """Receive messages following RFC 6455 specification."""
-        while (
-            self._ws_state_machine.is_connected() or self._ws_state_machine.is_closing()
-        ):
+        while self._ws_state_machine.is_connected() or self._ws_state_machine.is_closing():
             try:
                 frame = await self._receive_frame()
 
@@ -223,7 +215,7 @@ class WebSocketClient(ProtocolClient[Union[str, bytes]], RFCCompliance):
         header = await AnyIOStreamHelpers.read_exact(self._stream, 2)
 
         # Parse basic frame info to determine full frame size
-        first_byte = header[0]
+        header[0]
         second_byte = header[1]
 
         masked = bool(second_byte & 0x80)
@@ -244,9 +236,7 @@ class WebSocketClient(ProtocolClient[Union[str, bytes]], RFCCompliance):
 
         # Read remaining header bytes
         if total_header_size > 2:
-            remaining_header = await AnyIOStreamHelpers.read_exact(
-                self._stream, total_header_size - 2
-            )
+            remaining_header = await AnyIOStreamHelpers.read_exact(self._stream, total_header_size - 2)
             header += remaining_header
 
         # Parse extended length
@@ -262,9 +252,7 @@ class WebSocketClient(ProtocolClient[Union[str, bytes]], RFCCompliance):
         # Read payload
         payload_data = b""
         if payload_len > 0:
-            payload_data = await AnyIOStreamHelpers.read_exact(
-                self._stream, payload_len
-            )
+            payload_data = await AnyIOStreamHelpers.read_exact(self._stream, payload_len)
 
         # Reconstruct full frame data for parsing
         full_frame_data = header + payload_data
@@ -315,9 +303,7 @@ class WebSocketClient(ProtocolClient[Union[str, bytes]], RFCCompliance):
             if self._ws_state_machine.is_connected():
                 # Echo close frame back
                 await self._ws_state_machine.send_event(WSEvent.CLOSE_RECEIVED)
-                echo_frame = WSFrameBuilder.close_frame(
-                    self._close_code or CloseCode.NORMAL_CLOSURE
-                )
+                echo_frame = WSFrameBuilder.close_frame(self._close_code or CloseCode.NORMAL_CLOSURE)
                 await self._send_frame(echo_frame)
 
             await self._ws_state_machine.send_event(WSEvent.CLOSE_COMPLETE)

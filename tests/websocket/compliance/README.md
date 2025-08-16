@@ -1,9 +1,10 @@
 # Autobahn Testsuite Integration
 
-The [Autobahn Testsuite](https://github.com/crossbario/autobahn-testsuite) is the industry standard for WebSocket RFC 6455 compliance testing. It contains **500+ test cases** and is used by major libraries including:
+The [Autobahn Testsuite](https://github.com/crossbario/autobahn-testsuite) is the industry standard for WebSocket RFC
+6455 compliance testing. It contains **500+ test cases** and is used by major libraries including:
 
 - **Netty** (Java)
-- **Undertow** (Java) 
+- **Undertow** (Java)
 - **Qt WebSockets** (C++)
 - **Boost Beast** (C++)
 - **And many others**
@@ -36,29 +37,34 @@ open reports/clients/index.html
 The Autobahn Testsuite covers:
 
 ### **Basic Protocol Compliance**
+
 - Frame format validation
-- Opcode handling  
+- Opcode handling
 - Payload length encoding
 - Masking requirements
 
 ### **Message Fragmentation**
+
 - Text message fragmentation
 - Binary message fragmentation
 - Control frame intermixing
 - Continuation frame validation
 
 ### **Control Frames**
+
 - Ping/Pong handling
 - Close frame processing
 - Invalid control frames
 
 ### **Error Conditions**
+
 - Invalid UTF-8 in text frames
 - Reserved bits usage
 - Protocol violations
 - Connection state errors
 
 ### **Performance & Limits**
+
 - Large message handling
 - High frame rates
 - Memory usage patterns
@@ -74,7 +80,7 @@ The test runner supports both:
 # Run in strict RFC compliance mode
 await client.run_all_tests(strict_validation=True)
 
-# Run in relaxed mode for real-world compatibility  
+# Run in relaxed mode for real-world compatibility
 await client.run_all_tests(strict_validation=False)
 ```
 

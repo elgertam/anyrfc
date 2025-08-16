@@ -18,7 +18,7 @@ This directory contains example scripts demonstrating the capabilities of the An
    IMAP_PORT=993
    IMAP_USERNAME=your.email@example.com
    IMAP_PASSWORD=your_app_specific_password
-   
+
    # For Gmail-specific examples (legacy)
    GMAIL_USERNAME=your.email@gmail.com
    GMAIL_PASSWORD=your_app_specific_password

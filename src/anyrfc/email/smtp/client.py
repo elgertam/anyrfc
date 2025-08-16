@@ -121,9 +121,7 @@ class SMTPClient(ProtocolClient[str], AuthenticationClient, RFCCompliance):
             if self.use_tls and not self.use_starttls:
                 # Direct TLS connection (SMTPS)
                 tls_context = TLSHelper.create_default_client_context()
-                self._stream = await anyio.connect_tcp(
-                    self.hostname, self.port, tls=True, ssl_context=tls_context
-                )
+                self._stream = await anyio.connect_tcp(self.hostname, self.port, tls=True, ssl_context=tls_context)
                 self._tls_started = True
             else:
                 # Plain connection (will use STARTTLS if requested)
@@ -141,11 +139,7 @@ class SMTPClient(ProtocolClient[str], AuthenticationClient, RFCCompliance):
             await self._ehlo()
 
             # Start TLS if requested and not already using TLS
-            if (
-                self.use_starttls
-                and not self._tls_started
-                and self.has_capability("STARTTLS")
-            ):
+            if self.use_starttls and not self._tls_started and self.has_capability("STARTTLS"):
                 await self._start_tls()
                 # Re-send EHLO after STARTTLS
                 await self._ehlo()
@@ -162,7 +156,7 @@ class SMTPClient(ProtocolClient[str], AuthenticationClient, RFCCompliance):
             try:
                 # Send QUIT command
                 await self._send_command("QUIT")
-                response = await self._read_response()
+                await self._read_response()
                 # Ignore response code for QUIT
             except Exception:
                 # Ignore quit errors
@@ -214,9 +208,7 @@ class SMTPClient(ProtocolClient[str], AuthenticationClient, RFCCompliance):
         # SMTP doesn't typically support credential refresh
         return False
 
-    async def send_message(
-        self, from_addr: str, to_addrs: List[str], message: str
-    ) -> None:
+    async def send_message(self, from_addr: str, to_addrs: List[str], message: str) -> None:
         """Send email message per RFC 5321."""
         if self.state not in {ProtocolState.CONNECTED, ProtocolState.AUTHENTICATED}:
             raise RuntimeError("Must be connected to send message")
@@ -234,11 +226,7 @@ class SMTPClient(ProtocolClient[str], AuthenticationClient, RFCCompliance):
         # Reset transaction state
         self._current_mail_from = None
         self._current_recipients = []
-        self._smtp_state = (
-            SMTPState.AUTHENTICATED
-            if self.state == ProtocolState.AUTHENTICATED
-            else SMTPState.HELO_SENT
-        )
+        self._smtp_state = SMTPState.AUTHENTICATED if self.state == ProtocolState.AUTHENTICATED else SMTPState.HELO_SENT
 
     async def send(self, message: str) -> None:
         """Send command following RFC encoding rules."""
@@ -278,7 +266,7 @@ class SMTPClient(ProtocolClient[str], AuthenticationClient, RFCCompliance):
                 raise RuntimeError("No connection to upgrade")
 
             # Use AnyIO TLS wrapping
-            tls_context = TLSHelper.create_default_client_context()
+            TLSHelper.create_default_client_context()
             # Note: This is a simplified approach. Full implementation would need proper TLS upgrade
             self._tls_started = True
             self._smtp_state = SMTPState.STARTTLS_READY
@@ -309,9 +297,7 @@ class SMTPClient(ProtocolClient[str], AuthenticationClient, RFCCompliance):
 
             if response[0] == SMTPResponseCode.AUTH_CHALLENGE.value:
                 # Send password
-                password_b64 = base64.b64encode(password.encode("utf-8")).decode(
-                    "ascii"
-                )
+                password_b64 = base64.b64encode(password.encode("utf-8")).decode("ascii")
                 await self._send_command(password_b64)
                 response = await self._read_response()
 
@@ -350,9 +336,7 @@ class SMTPClient(ProtocolClient[str], AuthenticationClient, RFCCompliance):
             self._smtp_state = SMTPState.DATA_READY
 
             # Send message data, ensuring CRLF line endings
-            message_lines = (
-                message.replace("\\r\\n", "\\n").replace("\\r", "\\n").split("\\n")
-            )
+            message_lines = message.replace("\\r\\n", "\\n").replace("\\r", "\\n").split("\\n")
             for line in message_lines:
                 # Escape lines starting with '.' per RFC 5321
                 if line.startswith("."):

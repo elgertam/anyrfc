@@ -61,7 +61,5 @@ class TLSHelper:
     @staticmethod
     def create_unverified_context() -> ssl.SSLContext:
         """Create unverified context (NOT recommended for production)."""
-        config = TLSConfig(
-            verify_hostname=False, check_hostname=False, verify_mode=ssl.CERT_NONE
-        )
+        config = TLSConfig(verify_hostname=False, check_hostname=False, verify_mode=ssl.CERT_NONE)
         return TLSHelper.create_client_context(config)

@@ -98,18 +98,13 @@ class IMAPClient(ProtocolClient[IMAPCommand], AuthenticationClient, RFCComplianc
             # CRITICAL: Use ONLY AnyIO for network I/O
             if self.use_tls:
                 tls_context = TLSHelper.create_default_client_context()
-                self._stream = await anyio.connect_tcp(
-                    self.hostname, self.port, tls=True, ssl_context=tls_context
-                )
+                self._stream = await anyio.connect_tcp(self.hostname, self.port, tls=True, ssl_context=tls_context)
             else:
                 self._stream = await anyio.connect_tcp(self.hostname, self.port)
 
             # Read greeting per RFC 9051 Section 7.1.1
             greeting = await self._read_response()
-            if (
-                greeting.status != IMAPStatus.OK
-                and greeting.status != IMAPStatus.PREAUTH
-            ):
+            if greeting.status != IMAPStatus.OK and greeting.status != IMAPStatus.PREAUTH:
                 raise ValueError(f"IMAP server greeting failed: {greeting.message}")
 
             # Check if pre-authenticated
@@ -198,9 +193,7 @@ class IMAPClient(ProtocolClient[IMAPCommand], AuthenticationClient, RFCComplianc
         response = await self._send_command(command)
         return response.status == IMAPStatus.OK
 
-    async def _sasl_authenticate(
-        self, method: str, credentials: Dict[str, Any]
-    ) -> bool:
+    async def _sasl_authenticate(self, method: str, credentials: Dict[str, Any]) -> bool:
         """Perform SASL authentication per RFC 4422."""
         # Implementation of SASL authentication mechanisms
         # For now, return False (not implemented)
@@ -215,9 +208,7 @@ class IMAPClient(ProtocolClient[IMAPCommand], AuthenticationClient, RFCComplianc
             # Look for CAPABILITY response in untagged responses
             for resp in self._pending_responses:
                 if resp.message.startswith("CAPABILITY"):
-                    capabilities = IMAPResponseParser.parse_capability_response(
-                        resp.raw_line
-                    )
+                    capabilities = IMAPResponseParser.parse_capability_response(resp.raw_line)
                     self._capabilities = set(capabilities)
                     break
 
@@ -244,9 +235,7 @@ class IMAPClient(ProtocolClient[IMAPCommand], AuthenticationClient, RFCComplianc
         else:
             raise ValueError(f"Failed to select mailbox {mailbox}: {response.message}")
 
-    async def list_mailboxes(
-        self, reference: str = "", pattern: str = "*"
-    ) -> List[Dict[str, Any]]:
+    async def list_mailboxes(self, reference: str = "", pattern: str = "*") -> List[Dict[str, Any]]:
         """List mailboxes per RFC 9051 Section 6.3.9."""
         if self._imap_state not in {IMAPState.AUTHENTICATED, IMAPState.SELECTED}:
             raise RuntimeError("Must be authenticated to list mailboxes")
@@ -285,9 +274,7 @@ class IMAPClient(ProtocolClient[IMAPCommand], AuthenticationClient, RFCComplianc
         if response.status == IMAPStatus.OK:
             for resp in self._pending_responses:
                 if resp.message.startswith("SEARCH"):
-                    message_nums = IMAPResponseParser.parse_search_response(
-                        resp.raw_line
-                    )
+                    message_nums = IMAPResponseParser.parse_search_response(resp.raw_line)
                     self._pending_responses = []
                     return message_nums
 
@@ -296,9 +283,7 @@ class IMAPClient(ProtocolClient[IMAPCommand], AuthenticationClient, RFCComplianc
         else:
             raise ValueError(f"Failed to search messages: {response.message}")
 
-    async def fetch_messages(
-        self, sequence_set: str, items: str, use_uid: bool = False
-    ) -> List[Dict[str, Any]]:
+    async def fetch_messages(self, sequence_set: str, items: str, use_uid: bool = False) -> List[Dict[str, Any]]:
         """Fetch messages per RFC 9051 Section 6.4.5."""
         if self._imap_state != IMAPState.SELECTED:
             raise RuntimeError("Must have mailbox selected to fetch messages")
@@ -343,10 +328,7 @@ class IMAPClient(ProtocolClient[IMAPCommand], AuthenticationClient, RFCComplianc
         while True:
             response = await self._read_response()
 
-            if (
-                response.response_type == IMAPResponseType.TAGGED
-                and response.tag == tag
-            ):
+            if response.response_type == IMAPResponseType.TAGGED and response.tag == tag:
                 return response
             elif response.response_type == IMAPResponseType.UNTAGGED:
                 # Store untagged responses for processing

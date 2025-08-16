@@ -18,16 +18,12 @@ class AnyIOStreamHelpers:
     ) -> ByteStream:
         """Connect to TCP server with optional TLS using AnyIO only."""
         if tls:
-            return await anyio.connect_tcp(
-                hostname, port, tls=True, ssl_context=tls_context
-            )
+            return await anyio.connect_tcp(hostname, port, tls=True, ssl_context=tls_context)
         else:
             return await anyio.connect_tcp(hostname, port)
 
     @staticmethod
-    async def read_until(
-        stream: ByteStream, delimiter: bytes, max_size: int = 8192
-    ) -> bytes:
+    async def read_until(stream: ByteStream, delimiter: bytes, max_size: int = 8192) -> bytes:
         """Read from stream until delimiter is found using AnyIO."""
         buffer = b""
         while len(buffer) < max_size:

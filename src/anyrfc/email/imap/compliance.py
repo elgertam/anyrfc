@@ -529,8 +529,6 @@ class RFC9051Compliance(RFCCompliance):
             "total_tests": total_tests,
             "passed_tests": passed_tests,
             "failed_tests": failed_tests,
-            "compliance_percentage": (passed_tests / total_tests * 100)
-            if total_tests > 0
-            else 0,
+            "compliance_percentage": (passed_tests / total_tests * 100) if total_tests > 0 else 0,
             "failed_test_names": self.get_failed_tests(),
         }

@@ -48,9 +48,7 @@ class RFCComplianceFramework:
         self._test_vectors: Dict[str, List[RFCTestVector]] = {}
         self._registered_clients: Dict[str, Type] = {}
 
-    def register_test_vectors(
-        self, rfc_number: str, test_vectors: List[RFCTestVector]
-    ) -> None:
+    def register_test_vectors(self, rfc_number: str, test_vectors: List[RFCTestVector]) -> None:
         """Register test vectors for an RFC."""
         self._test_vectors[rfc_number] = test_vectors
 
@@ -58,9 +56,7 @@ class RFCComplianceFramework:
         """Register a client implementation for testing."""
         self._registered_clients[rfc_number] = client_class
 
-    async def run_compliance_tests(
-        self, rfc_number: str, client_instance: Any
-    ) -> ComplianceTestReport:
+    async def run_compliance_tests(self, rfc_number: str, client_instance: Any) -> ComplianceTestReport:
         """Run RFC compliance tests for a client implementation."""
         if rfc_number not in self._test_vectors:
             raise ValueError(f"No test vectors registered for {rfc_number}")
@@ -101,9 +97,7 @@ class RFCComplianceFramework:
             compliance_percentage=compliance_percentage,
         )
 
-    async def _run_single_test(
-        self, client: Any, test_vector: RFCTestVector
-    ) -> ComplianceTestResult:
+    async def _run_single_test(self, client: Any, test_vector: RFCTestVector) -> ComplianceTestResult:
         """Run a single RFC compliance test."""
         # This is protocol-specific and will be implemented by subclasses
         # For now, return SKIP as placeholder

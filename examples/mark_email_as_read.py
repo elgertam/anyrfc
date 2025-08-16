@@ -19,14 +19,15 @@ Setup:
 2. Run: uv sync --group examples
 3. Run: uv run python examples/mark_email_as_read.py
 """
+
 import anyio
 import os
 import sys
-from typing import List
 
 # Load environment variables
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     print("Warning: python-dotenv not installed. Using os.environ directly.")
@@ -39,128 +40,122 @@ from anyrfc.parsing import IMAPParser
 async def find_and_mark_email_as_read(subject: str) -> bool:
     """
     Find an email with the specified subject and mark it as read.
-    
+
     Args:
         subject: The email subject to search for
-        
+
     Returns:
         bool: True if email was found and marked as read, False otherwise
     """
-    
+
     # Get credentials from environment
     username = os.getenv("GMAIL_USERNAME")
     password = os.getenv("GMAIL_PASSWORD")
-    
+
     if not username or not password:
         print("Error: GMAIL_USERNAME and GMAIL_PASSWORD must be set in .env file")
         return False
-    
+
     print(f"Connecting to Gmail IMAP server as {username}...")
-    
+
     # Create and connect to Gmail IMAP server
     client = IMAPClient("imap.gmail.com", 993, use_tls=True)
-    
+
     try:
         # Connect with timeout
         with anyio.move_on_after(30):
             await client.connect()
             print(f"Connected to {client.hostname}:{client.port}")
-        
+
         if client.state.value != "connected":
             print("Error: Connection timed out")
             return False
-        
+
         # Authenticate
         print("Authenticating...")
         with anyio.move_on_after(30):
-            await client.authenticate({
-                "username": username,
-                "password": password
-            })
-        
+            await client.authenticate({"username": username, "password": password})
+
         if client.imap_state.value != "authenticated":
             print("Error: Authentication failed")
             return False
-        
+
         print("Authentication successful!")
-        
+
         # Select INBOX
         print("Selecting INBOX...")
         with anyio.move_on_after(10):
             mailbox_info = await client.select_mailbox("INBOX")
-        
+
         total_messages = mailbox_info.get("exists", 0)
         print(f"Total messages in INBOX: {total_messages}")
-        
+
         if total_messages == 0:
             print("No messages found in INBOX.")
             return False
-        
+
         # Search for emails with the specific subject
         print(f"Searching for emails with subject: '{subject}'...")
-        
+
         # Use IMAP SEARCH command to find emails by subject
         search_command = f'SUBJECT "{subject}"'
-        
+
         # Send the search command
         with anyio.move_on_after(30):
             search_results = await client.search_messages(search_command)
-        
+
         if not search_results:
             print(f"No emails found with subject: '{subject}'")
             return False
-        
+
         print(f"Found {len(search_results)} email(s) with matching subject")
-        
+
         # Get the first matching email
         message_uid = search_results[0]
         print(f"Processing email UID: {message_uid}")
-        
+
         # Fetch the email to verify it's the right one
         print("Fetching email details to verify...")
         with anyio.move_on_after(30):
-            messages = await client.fetch_messages(
-                str(message_uid),
-                "(ENVELOPE FLAGS)"
-            )
-        
+            messages = await client.fetch_messages(str(message_uid), "(ENVELOPE FLAGS)")
+
         if not messages:
             print("Error: Could not fetch email details")
             return False
-        
+
         # Parse the fetched message to display details
         parser = IMAPParser()
         message = messages[0]
         raw_line = message.get("raw", "")
-        
+
         if raw_line:
             parse_result = parser.parse_fetch_response(raw_line)
             if parse_result.success:
                 fetch_response = parse_result.value
-                
+
                 # Display email details
-                print(f"\nEmail found:")
+                print("\nEmail found:")
                 print(f"UID: {fetch_response.uid}")
                 print(f"Current flags: {fetch_response.flags or []}")
-                
+
                 if fetch_response.envelope and fetch_response.envelope.subject:
                     print(f"Subject: {fetch_response.envelope.subject}")
-                    
+
                     # Verify this is the email we're looking for
                     if subject.lower() in fetch_response.envelope.subject.lower():
                         print("✓ Subject matches our search criteria")
                     else:
                         print("⚠ Subject doesn't exactly match, but proceeding...")
-                
+
                 if fetch_response.envelope and fetch_response.envelope.from_addr:
                     from_list = []
                     for addr in fetch_response.envelope.from_addr:
-                        if addr.get('name') and addr.get('email'):
+                        if addr.get("name") and addr.get("email"):
                             from_list.append(f"{addr['name']} <{addr['email']}>")
-                        elif addr.get('email'):
-                            from_list.append(addr['email'])
+                        elif addr.get("email"):
+                            from_list.append(addr["email"])
                     print(f"From: {', '.join(from_list)}")
-                
+
                 # Check if email is already marked as read
                 current_flags = fetch_response.flags or []
                 if "\\Seen" in current_flags:
@@ -168,30 +163,23 @@ async def find_and_mark_email_as_read(subject: str) -> bool:
                     return True
                 else:
                     print("📬 Email is currently unread")
-        
+
         # Mark the email as read by adding the \Seen flag
         print(f"\nMarking email UID {message_uid} as read...")
-        
+
         with anyio.move_on_after(30):
             # Use STORE command to add the \Seen flag
             # Format: STORE uid FLAGS (\Seen)
-            store_command = IMAPCommandBuilder.store(
-                str(message_uid),
-                "FLAGS",
-                "(\\Seen)"
-            )
-            store_result = await client._send_command(store_command)
-        
+            store_command = IMAPCommandBuilder.store(str(message_uid), "FLAGS", "(\\Seen)")
+            await client._send_command(store_command)
+
         print("✓ Email marked as read successfully!")
-        
+
         # Verify the change by fetching the email again
         print("Verifying the change...")
         with anyio.move_on_after(30):
-            verify_messages = await client.fetch_messages(
-                str(message_uid),
-                "(FLAGS)"
-            )
-        
+            verify_messages = await client.fetch_messages(str(message_uid), "(FLAGS)")
+
         if verify_messages:
             verify_message = verify_messages[0]
             verify_raw = verify_message.get("raw", "")
@@ -205,16 +193,17 @@ async def find_and_mark_email_as_read(subject: str) -> bool:
                     else:
                         print("❌ Verification failed: Email is still not marked as read")
                         return False
-        
+
         print("⚠ Could not verify the change, but command was sent")
         return True
-        
+
     except Exception as e:
         print(f"Error: {e}")
         import traceback
+
         traceback.print_exc()
         return False
-        
+
     finally:
         # Ensure we disconnect properly
         try:
@@ -226,25 +215,23 @@ async def find_and_mark_email_as_read(subject: str) -> bool:
 
 async def main():
     """Main function."""
-    
-    import sys
-    
+
     # Get subject from command line or use default
     if len(sys.argv) > 1:
         target_subject = sys.argv[1]
     else:
         target_subject = "Test Email"
-        print("Usage: python mark_email_as_read.py \"Email Subject\"")
+        print('Usage: python mark_email_as_read.py "Email Subject"')
         print(f"Using default subject: '{target_subject}'")
-    
+
     print("=" * 80)
     print("AnyRFC IMAP Email Marking Example")
     print("=" * 80)
     print(f"Target subject: {target_subject}")
     print()
-    
+
     success = await find_and_mark_email_as_read(target_subject)
-    
+
     print()
     print("=" * 80)
     if success:

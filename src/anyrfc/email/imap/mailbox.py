@@ -84,9 +84,7 @@ class MailboxManager:
 
         return list(self._mailbox_cache.values())
 
-    async def get_mailbox_info(
-        self, mailbox: str, refresh: bool = False
-    ) -> Optional[MailboxInfo]:
+    async def get_mailbox_info(self, mailbox: str, refresh: bool = False) -> Optional[MailboxInfo]:
         """Get information for specific mailbox."""
         if refresh or mailbox not in self._mailbox_cache:
             # Refresh cache for this specific mailbox
@@ -98,9 +96,7 @@ class MailboxManager:
 
         return self._mailbox_cache.get(mailbox)
 
-    async def get_mailbox_status(
-        self, mailbox: str, items: List[str] = None
-    ) -> Dict[str, int]:
+    async def get_mailbox_status(self, mailbox: str, items: List[str] = None) -> Dict[str, int]:
         """Get mailbox status information."""
         if items is None:
             items = ["MESSAGES", "RECENT", "UIDNEXT", "UIDVALIDITY", "UNSEEN"]
@@ -116,9 +112,7 @@ class MailboxManager:
                 if resp.message.startswith("STATUS"):
                     from .responses import IMAPResponseParser
 
-                    status_data = IMAPResponseParser.parse_status_response(
-                        resp.raw_line
-                    )
+                    status_data = IMAPResponseParser.parse_status_response(resp.raw_line)
                     if status_data:
                         return status_data
             return {}
@@ -190,17 +184,13 @@ class MailboxManager:
 
         return response.status.value == "OK"
 
-    async def get_subscribed_mailboxes(
-        self, reference: str = "", pattern: str = "*"
-    ) -> List[MailboxInfo]:
+    async def get_subscribed_mailboxes(self, reference: str = "", pattern: str = "*") -> List[MailboxInfo]:
         """Get list of subscribed mailboxes."""
         from .commands import IMAPCommand, IMAPCommandType, IMAPQuotedString
 
         ref_quoted = IMAPQuotedString(reference).to_imap_string()
         pattern_quoted = IMAPQuotedString(pattern).to_imap_string()
-        command = IMAPCommand(
-            IMAPCommandType.LIST, ["SUBSCRIBED", ref_quoted, pattern_quoted]
-        )
+        command = IMAPCommand(IMAPCommandType.LIST, ["SUBSCRIBED", ref_quoted, pattern_quoted])
         response = await self.client._send_command(command)
 
         if response.status.value == "OK":
@@ -289,9 +279,7 @@ class MailboxManager:
                 if self._hierarchy_delimiter is None and info.delimiter:
                     self._hierarchy_delimiter = info.delimiter
 
-    def _parse_mailbox_data(
-        self, mailbox_data: Dict[str, Any]
-    ) -> Optional[MailboxInfo]:
+    def _parse_mailbox_data(self, mailbox_data: Dict[str, Any]) -> Optional[MailboxInfo]:
         """Parse mailbox data from LIST response."""
         if not mailbox_data:
             return None

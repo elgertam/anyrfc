@@ -90,9 +90,7 @@ class ProtocolStateMachine(ABC, Generic[StateType, EventType]):
 
             return True
 
-    async def wait_for_state(
-        self, target_state: StateType, timeout: Optional[float] = None
-    ) -> bool:
+    async def wait_for_state(self, target_state: StateType, timeout: Optional[float] = None) -> bool:
         """Wait for state machine to reach target state."""
         if self._current_state == target_state:
             return True
@@ -114,8 +112,6 @@ class ProtocolStateMachine(ABC, Generic[StateType, EventType]):
         pass
 
     @abstractmethod
-    def is_valid_transition(
-        self, from_state: StateType, event: EventType, to_state: StateType
-    ) -> bool:
+    def is_valid_transition(self, from_state: StateType, event: EventType, to_state: StateType) -> bool:
         """Check if a transition is valid according to protocol rules."""
         pass

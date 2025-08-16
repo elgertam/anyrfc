@@ -44,16 +44,10 @@ class WebSocketStateMachine(ProtocolStateMachine[WSState, WSEvent]):
             # From DISCONNECTED
             StateTransition(WSState.DISCONNECTED, WSEvent.CONNECT, WSState.CONNECTING),
             # From CONNECTING
-            StateTransition(
-                WSState.CONNECTING, WSEvent.HANDSHAKE_COMPLETE, WSState.OPEN
-            ),
-            StateTransition(
-                WSState.CONNECTING, WSEvent.HANDSHAKE_FAILED, WSState.ERROR
-            ),
+            StateTransition(WSState.CONNECTING, WSEvent.HANDSHAKE_COMPLETE, WSState.OPEN),
+            StateTransition(WSState.CONNECTING, WSEvent.HANDSHAKE_FAILED, WSState.ERROR),
             StateTransition(WSState.CONNECTING, WSEvent.ERROR_OCCURRED, WSState.ERROR),
-            StateTransition(
-                WSState.CONNECTING, WSEvent.DISCONNECT, WSState.DISCONNECTED
-            ),
+            StateTransition(WSState.CONNECTING, WSEvent.DISCONNECT, WSState.DISCONNECTED),
             # From OPEN
             StateTransition(WSState.OPEN, WSEvent.CLOSE_INITIATED, WSState.CLOSING),
             StateTransition(WSState.OPEN, WSEvent.CLOSE_RECEIVED, WSState.CLOSING),
@@ -78,9 +72,7 @@ class WebSocketStateMachine(ProtocolStateMachine[WSState, WSEvent]):
         """Get all valid transitions for WebSocket protocol."""
         return {(t.from_state, t.event): t.to_state for t in self._transitions.values()}
 
-    def is_valid_transition(
-        self, from_state: WSState, event: WSEvent, to_state: WSState
-    ) -> bool:
+    def is_valid_transition(self, from_state: WSState, event: WSEvent, to_state: WSState) -> bool:
         """Check if a transition is valid according to RFC 6455."""
         key = (from_state, event)
         if key not in self._transitions:

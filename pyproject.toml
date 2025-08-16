@@ -67,6 +67,11 @@ python_version = "3.11"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
+mypy_path = "src"
+exclude = [
+    "src/anyrfc/_vendor/",
+    "tests/",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -90,6 +95,7 @@ dev = [
     "autobahntestsuite>=0.8.2",
     "commitizen>=4.8.3",
     "twine>=6.1.0",
+    "pre-commit>=4.3.0",
 ]
 notebook = [
     "jupyter>=1.0.0",

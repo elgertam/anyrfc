@@ -305,9 +305,7 @@ def body_type_text():
 
 
 def body_type_1part():
-    return [body_type_basic, body_type_msg, body_type_text], ArpeggioOptional(
-        sp, body_ext_1part
-    )
+    return [body_type_basic, body_type_msg, body_type_text], ArpeggioOptional(sp, body_ext_1part)
 
 
 def body_type_mpart():

@@ -123,9 +123,7 @@ class IMAPCommandBuilder:
         return IMAPCommand(IMAPCommandType.LOGIN, [username_quoted, password_quoted])
 
     @staticmethod
-    def authenticate(
-        mechanism: str, initial_response: Optional[str] = None
-    ) -> IMAPCommand:
+    def authenticate(mechanism: str, initial_response: Optional[str] = None) -> IMAPCommand:
         """Build AUTHENTICATE command per RFC 9051 Section 6.2.2."""
         args = [mechanism]
         if initial_response:

@@ -146,9 +146,7 @@ class IMAPParser(RFCParser):
                 fetch_att_list = tree[6]  # This is the fetch_msg_att
 
                 # Parse fetch attributes by walking the tree
-                self._extract_fetch_attributes(
-                    fetch_att_list, result, tree, original_text
-                )
+                self._extract_fetch_attributes(fetch_att_list, result, tree, original_text)
 
             return result
 
@@ -189,9 +187,7 @@ class IMAPParser(RFCParser):
             if date_match:
                 try:
                     date_str = date_match.group(1)
-                    result.internal_date = datetime.strptime(
-                        date_str, "%d-%b-%Y %H:%M:%S %z"
-                    )
+                    result.internal_date = datetime.strptime(date_str, "%d-%b-%Y %H:%M:%S %z")
                 except ValueError:
                     result.internal_date = date_str
 
@@ -231,9 +227,7 @@ class IMAPParser(RFCParser):
                         if hasattr(next_node, "value"):
                             if next_node.value == "(":
                                 found_opening_paren = True
-                            elif next_node.value.startswith(
-                                "\\"
-                            ) or next_node.value.startswith("$"):
+                            elif next_node.value.startswith("\\") or next_node.value.startswith("$"):
                                 flags.add(next_node.value)
                             elif next_node.value == ")":
                                 break  # End of flags list
@@ -257,9 +251,7 @@ class IMAPParser(RFCParser):
                     if date_chars:
                         date_str = "".join(date_chars)
                         try:
-                            result.internal_date = datetime.strptime(
-                                date_str, "%d-%b-%Y %H:%M:%S %z"
-                            )
+                            result.internal_date = datetime.strptime(date_str, "%d-%b-%Y %H:%M:%S %z")
                         except ValueError:
                             result.internal_date = date_str
                 elif value == "ENVELOPE":
@@ -270,18 +262,14 @@ class IMAPParser(RFCParser):
                         if env_start != -1:
                             paren_start = original_text.find("(", env_start)
                             if paren_start != -1:
-                                envelope_text = self._extract_balanced_parentheses(
-                                    original_text, paren_start
-                                )
+                                envelope_text = self._extract_balanced_parentheses(original_text, paren_start)
                                 env_match = True
                             else:
                                 env_match = None
                         else:
                             env_match = None
                         if env_match:
-                            result.envelope = self._parse_envelope_from_text(
-                                envelope_text
-                            )
+                            result.envelope = self._parse_envelope_from_text(envelope_text)
                         # If no match, envelope remains None
                 elif value == "BODYSTRUCTURE":
                     # Extract BODYSTRUCTURE data using balanced parentheses parsing
@@ -290,23 +278,13 @@ class IMAPParser(RFCParser):
                         if body_start != -1:
                             paren_start = original_text.find("(", body_start)
                             if paren_start != -1:
-                                bodystructure_text = self._extract_balanced_parentheses(
-                                    original_text, paren_start
-                                )
-                                result.body_structure = (
-                                    self._parse_bodystructure_from_text(
-                                        bodystructure_text
-                                    )
-                                )
+                                bodystructure_text = self._extract_balanced_parentheses(original_text, paren_start)
+                                result.body_structure = self._parse_bodystructure_from_text(bodystructure_text)
 
     def _get_original_text(self, tree):
         """Get original text from parse tree."""
         # Use the tree's position and input to reconstruct text
-        if (
-            hasattr(tree, "_input")
-            and hasattr(tree, "_pos_start")
-            and hasattr(tree, "_pos_end")
-        ):
+        if hasattr(tree, "_input") and hasattr(tree, "_pos_start") and hasattr(tree, "_pos_end"):
             return tree._input[tree._pos_start : tree._pos_end]
         else:
             # Fallback to string representation
@@ -378,9 +356,7 @@ class IMAPParser(RFCParser):
                 input_text = first_node._input
 
                 # Find ENVELOPE in the input
-                env_match = re.search(
-                    r"ENVELOPE\s+(\([^)]+(?:\([^)]*\)[^)]*)*\))", input_text
-                )
+                env_match = re.search(r"ENVELOPE\s+(\([^)]+(?:\([^)]*\)[^)]*)*\))", input_text)
                 if env_match:
                     envelope_text = env_match.group(1)
                     return self._parse_envelope_from_text(envelope_text)
@@ -554,13 +530,9 @@ class IMAPParser(RFCParser):
             return IMAPEnvelope(
                 date=self._clean_string(fields[0]) if len(fields) > 0 else None,
                 subject=self._clean_string(fields[1]) if len(fields) > 1 else None,
-                from_addr=self._parse_address_list(fields[2])
-                if len(fields) > 2
-                else None,
+                from_addr=self._parse_address_list(fields[2]) if len(fields) > 2 else None,
                 sender=self._parse_address_list(fields[3]) if len(fields) > 3 else None,
-                reply_to=self._parse_address_list(fields[4])
-                if len(fields) > 4
-                else None,
+                reply_to=self._parse_address_list(fields[4]) if len(fields) > 4 else None,
                 to=self._parse_address_list(fields[5]) if len(fields) > 5 else None,
                 cc=self._parse_address_list(fields[6]) if len(fields) > 6 else None,
                 bcc=self._parse_address_list(fields[7]) if len(fields) > 7 else None,
@@ -645,11 +617,7 @@ class IMAPParser(RFCParser):
                 else:
                     result["content_type"] = "multipart/unknown"
 
-                result["parts"] = (
-                    [f"Part {i + 1}" for i in range(part_count)]
-                    if part_count > 0
-                    else ["Part 1"]
-                )
+                result["parts"] = [f"Part {i + 1}" for i in range(part_count)] if part_count > 0 else ["Part 1"]
 
         return result
 

@@ -72,9 +72,7 @@ class ProtocolClient(RFCCompliance, Generic[T], ABC):
             self._state = new_state
             await self._on_state_change(old_state, new_state)
 
-    async def _on_state_change(
-        self, old_state: ProtocolState, new_state: ProtocolState
-    ) -> None:
+    async def _on_state_change(self, old_state: ProtocolState, new_state: ProtocolState) -> None:
         """Override to handle state transitions."""
         pass
 

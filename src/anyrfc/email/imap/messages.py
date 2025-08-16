@@ -116,9 +116,7 @@ class MessageManager:
     def __init__(self, client):
         self.client = client
 
-    async def get_message_info(
-        self, message_nums: Union[int, str], use_uid: bool = False
-    ) -> List[MessageInfo]:
+    async def get_message_info(self, message_nums: Union[int, str], use_uid: bool = False) -> List[MessageInfo]:
         """Get message information using FETCH."""
         if isinstance(message_nums, int):
             sequence_set = str(message_nums)
@@ -152,9 +150,7 @@ class MessageManager:
         messages = await self.client.fetch_messages(sequence_set, items, use_uid)
         return messages
 
-    async def get_message_body(
-        self, message_num: int, section: str = "", use_uid: bool = False
-    ) -> Optional[bytes]:
+    async def get_message_body(self, message_num: int, section: str = "", use_uid: bool = False) -> Optional[bytes]:
         """Get message body or body section."""
         if section:
             items = f"BODY.PEEK[{section}]"
@@ -166,16 +162,14 @@ class MessageManager:
         if messages:
             # Extract body data from fetch response
             # This is simplified - production would need more robust parsing
-            fetch_data = messages[0].get("fetch_data", "")
+            messages[0].get("fetch_data", "")
             # Parse body data from parenthesized list
             # Implementation would extract the literal data
             return b""  # Placeholder
 
         return None
 
-    async def get_message_text(
-        self, message_num: int, use_uid: bool = False
-    ) -> Optional[str]:
+    async def get_message_text(self, message_num: int, use_uid: bool = False) -> Optional[str]:
         """Get message as text."""
         body_data = await self.get_message_body(message_num, "", use_uid)
         if body_data:
@@ -185,9 +179,7 @@ class MessageManager:
                 return body_data.decode("utf-8", errors="replace")
         return None
 
-    async def parse_message(
-        self, message_num: int, use_uid: bool = False
-    ) -> Optional[EmailMessage]:
+    async def parse_message(self, message_num: int, use_uid: bool = False) -> Optional[EmailMessage]:
         """Parse message into EmailMessage object."""
         body_data = await self.get_message_body(message_num, "", use_uid)
         if body_data:
@@ -221,52 +213,30 @@ class MessageManager:
         from .commands import IMAPCommand, IMAPCommandType
 
         if use_uid:
-            command = IMAPCommand(
-                IMAPCommandType.STORE, ["UID", sequence_set, item, flags_str]
-            )
+            command = IMAPCommand(IMAPCommandType.STORE, ["UID", sequence_set, item, flags_str])
         else:
-            command = IMAPCommand(
-                IMAPCommandType.STORE, [sequence_set, item, flags_str]
-            )
+            command = IMAPCommand(IMAPCommandType.STORE, [sequence_set, item, flags_str])
 
         response = await self.client._send_command(command)
         return response.status.value == "OK"
 
-    async def mark_seen(
-        self, message_nums: Union[int, str], use_uid: bool = False
-    ) -> bool:
+    async def mark_seen(self, message_nums: Union[int, str], use_uid: bool = False) -> bool:
         """Mark messages as seen."""
-        return await self.set_message_flags(
-            message_nums, [MessageFlag.SEEN.value], "ADD", use_uid
-        )
+        return await self.set_message_flags(message_nums, [MessageFlag.SEEN.value], "ADD", use_uid)
 
-    async def mark_unseen(
-        self, message_nums: Union[int, str], use_uid: bool = False
-    ) -> bool:
+    async def mark_unseen(self, message_nums: Union[int, str], use_uid: bool = False) -> bool:
         """Mark messages as unseen."""
-        return await self.set_message_flags(
-            message_nums, [MessageFlag.SEEN.value], "REMOVE", use_uid
-        )
+        return await self.set_message_flags(message_nums, [MessageFlag.SEEN.value], "REMOVE", use_uid)
 
-    async def mark_flagged(
-        self, message_nums: Union[int, str], use_uid: bool = False
-    ) -> bool:
+    async def mark_flagged(self, message_nums: Union[int, str], use_uid: bool = False) -> bool:
         """Mark messages as flagged."""
-        return await self.set_message_flags(
-            message_nums, [MessageFlag.FLAGGED.value], "ADD", use_uid
-        )
+        return await self.set_message_flags(message_nums, [MessageFlag.FLAGGED.value], "ADD", use_uid)
 
-    async def mark_deleted(
-        self, message_nums: Union[int, str], use_uid: bool = False
-    ) -> bool:
+    async def mark_deleted(self, message_nums: Union[int, str], use_uid: bool = False) -> bool:
         """Mark messages as deleted."""
-        return await self.set_message_flags(
-            message_nums, [MessageFlag.DELETED.value], "ADD", use_uid
-        )
+        return await self.set_message_flags(message_nums, [MessageFlag.DELETED.value], "ADD", use_uid)
 
-    async def copy_messages(
-        self, message_nums: Union[int, str], destination: str, use_uid: bool = False
-    ) -> bool:
+    async def copy_messages(self, message_nums: Union[int, str], destination: str, use_uid: bool = False) -> bool:
         """Copy messages to destination mailbox."""
         if isinstance(message_nums, int):
             sequence_set = str(message_nums)
@@ -278,18 +248,14 @@ class MessageManager:
         mailbox_quoted = IMAPQuotedString(destination).to_imap_string()
 
         if use_uid:
-            command = IMAPCommand(
-                IMAPCommandType.COPY, ["UID", sequence_set, mailbox_quoted]
-            )
+            command = IMAPCommand(IMAPCommandType.COPY, ["UID", sequence_set, mailbox_quoted])
         else:
             command = IMAPCommand(IMAPCommandType.COPY, [sequence_set, mailbox_quoted])
 
         response = await self.client._send_command(command)
         return response.status.value == "OK"
 
-    async def move_messages(
-        self, message_nums: Union[int, str], destination: str, use_uid: bool = False
-    ) -> bool:
+    async def move_messages(self, message_nums: Union[int, str], destination: str, use_uid: bool = False) -> bool:
         """Move messages to destination mailbox (if server supports MOVE)."""
         if not self.client.has_capability("MOVE"):
             # Fallback to COPY + STORE +FLAGS \\Deleted + EXPUNGE
@@ -309,9 +275,7 @@ class MessageManager:
         mailbox_quoted = IMAPQuotedString(destination).to_imap_string()
 
         if use_uid:
-            command = IMAPCommand(
-                IMAPCommandType.MOVE, ["UID", sequence_set, mailbox_quoted]
-            )
+            command = IMAPCommand(IMAPCommandType.MOVE, ["UID", sequence_set, mailbox_quoted])
         else:
             command = IMAPCommand(IMAPCommandType.MOVE, [sequence_set, mailbox_quoted])
 
@@ -397,7 +361,7 @@ class MessageManager:
 
         # This is simplified parsing - production would need more robust parsing
         # of the actual FETCH response format
-        raw_data = fetch_data.get("fetch_data", "")
+        fetch_data.get("fetch_data", "")
 
         # Parse basic fields from fetch_data
         # Implementation would extract UID, FLAGS, INTERNALDATE, etc.

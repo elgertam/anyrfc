@@ -7,16 +7,17 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-AnyRFC provides **production-ready, RFC-compliant protocol clients** that prioritize correctness, security, and modern async patterns. Built exclusively with [AnyIO](https://anyio.readthedocs.io/) for structured concurrency.
+AnyRFC provides **production-ready, RFC-compliant protocol clients** that prioritize correctness, security, and modern
+async patterns. Built exclusively with [AnyIO](https://anyio.readthedocs.io/) for structured concurrency.
 
 ## Why AnyRFC?
 
-🎯 **RFC Compliance First** - Every implementation passes comprehensive RFC test suites  
-⚡ **Modern Async** - Structured concurrency with AnyIO (no asyncio dependency hell)  
-🔒 **Security by Default** - TLS everywhere, proper certificate validation, secure authentication  
-🧪 **Battle-Tested** - Real-world interoperability testing against major servers  
-📝 **Type Safe** - Full mypy compliance with strict typing  
-🚀 **Production Ready** - Complete implementations, not toys or demos  
+🎯 **RFC Compliance First** - Every implementation passes comprehensive RFC test suites
+⚡ **Modern Async** - Structured concurrency with AnyIO (no asyncio dependency hell)
+🔒 **Security by Default** - TLS everywhere, proper certificate validation, secure authentication
+🧪 **Battle-Tested** - Real-world interoperability testing against major servers
+📝 **Type Safe** - Full mypy compliance with strict typing
+🚀 **Production Ready** - Complete implementations, not toys or demos
 
 ## Quick Start
 
@@ -324,7 +325,8 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Why "AnyRFC"?
 
-**Any** + **RFC** = Protocol clients that work with **any** server implementing the **RFC** standard. Built on **AnyIO** for structured concurrency.
+**Any** + **RFC** = Protocol clients that work with **any** server implementing the **RFC** standard. Built on
+**AnyIO** for structured concurrency.
 
 ---
 

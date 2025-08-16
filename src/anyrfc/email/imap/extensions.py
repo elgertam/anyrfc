@@ -42,9 +42,7 @@ class IdleExtension(IMAPExtension):
     async def validate_server_support(self, capabilities: set[str]) -> bool:
         return "IDLE" in capabilities
 
-    async def start_idle(
-        self, callback: Optional[Callable[[IMAPResponse], None]] = None
-    ) -> None:
+    async def start_idle(self, callback: Optional[Callable[[IMAPResponse], None]] = None) -> None:
         """Start IDLE mode per RFC 2177."""
         if self._idle_active:
             raise RuntimeError("IDLE already active")
@@ -78,16 +76,14 @@ class IdleExtension(IMAPExtension):
         await self.client._stream.send(b"DONE\r\n")
 
         # Read completion response
-        response = await self.client._read_response()
+        await self.client._read_response()
 
         self._idle_active = False
         if self._idle_task:
             self._idle_task.cancel_scope.cancel()
             self._idle_task = None
 
-    async def _monitor_idle_responses(
-        self, callback: Callable[[IMAPResponse], None]
-    ) -> None:
+    async def _monitor_idle_responses(self, callback: Callable[[IMAPResponse], None]) -> None:
         """Monitor for IDLE responses using AnyIO."""
         while self._idle_active:
             try:
@@ -95,10 +91,7 @@ class IdleExtension(IMAPExtension):
                 callback(response)
 
                 # Handle expunge, exists, recent updates
-                if any(
-                    keyword in response.message
-                    for keyword in ["EXISTS", "RECENT", "EXPUNGE", "FETCH"]
-                ):
+                if any(keyword in response.message for keyword in ["EXISTS", "RECENT", "EXPUNGE", "FETCH"]):
                     # Mailbox state changed
                     pass
 
@@ -124,9 +117,7 @@ class SortExtension(IMAPExtension):
     async def validate_server_support(self, capabilities: set[str]) -> bool:
         return "SORT" in capabilities
 
-    async def sort_messages(
-        self, sort_criteria: List[str], search_criteria: str, charset: str = "UTF-8"
-    ) -> List[int]:
+    async def sort_messages(self, sort_criteria: List[str], search_criteria: str, charset: str = "UTF-8") -> List[int]:
         """SORT messages per RFC 5256."""
         if not await self.validate_server_support(self.client.capabilities):
             raise RuntimeError("Server does not support SORT")
@@ -205,9 +196,7 @@ class CondstoreExtension(IMAPExtension):
     async def validate_server_support(self, capabilities: set[str]) -> bool:
         return "CONDSTORE" in capabilities
 
-    async def fetch_changed_since(
-        self, sequence_set: str, modseq: int, items: str
-    ) -> List[Dict[str, Any]]:
+    async def fetch_changed_since(self, sequence_set: str, modseq: int, items: str) -> List[Dict[str, Any]]:
         """Fetch messages changed since MODSEQ per RFC 7162."""
         if not await self.validate_server_support(self.client.capabilities):
             raise RuntimeError("Server does not support CONDSTORE")

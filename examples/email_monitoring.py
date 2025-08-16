@@ -17,6 +17,7 @@ Setup:
 2. Run: uv sync --group examples
 3. Run: uv run python examples/email_monitoring.py [duration_minutes]
 """
+
 import anyio
 import os
 import sys
@@ -25,6 +26,7 @@ from datetime import datetime, timedelta
 # Load environment variables
 try:
     from dotenv import load_dotenv
+
     load_dotenv()
 except ImportError:
     print("Warning: python-dotenv not installed. Using os.environ directly.")
@@ -34,24 +36,24 @@ from anyrfc.email.imap import IMAPClient
 
 async def monitor_emails(duration_minutes: int = 5):
     """Monitor for new emails for the specified duration."""
-    
+
     # Get credentials from environment
     hostname = os.getenv("IMAP_HOSTNAME", "imap.gmail.com")
     port = int(os.getenv("IMAP_PORT", "993"))
     username = os.getenv("IMAP_USERNAME")
     password = os.getenv("IMAP_PASSWORD")
-    
+
     if not username or not password:
         print("Error: IMAP_USERNAME and IMAP_PASSWORD must be set in .env file")
         print("Optional: IMAP_HOSTNAME (default: imap.gmail.com), IMAP_PORT (default: 993)")
         return False
-    
-    print(f"🔍 Starting email monitoring...")
+
+    print("🔍 Starting email monitoring...")
     print(f"📧 Server: {hostname}:{port}")
     print(f"👤 User: {username}")
     print(f"⏰ Duration: {duration_minutes} minutes")
     print()
-    
+
     try:
         # Get baseline count
         print("📊 Getting baseline message count...")
@@ -61,87 +63,88 @@ async def monitor_emails(duration_minutes: int = 5):
         baseline_info = await baseline_client.select_mailbox("INBOX")
         baseline_count = baseline_info.get("exists", 0)
         await baseline_client.disconnect()
-        
+
         print(f"📬 Baseline: {baseline_count} messages in INBOX")
-        print(f"🎧 Starting real-time monitoring...")
-        print(f"⏹️  Press Ctrl+C to stop early")
+        print("🎧 Starting real-time monitoring...")
+        print("⏹️  Press Ctrl+C to stop early")
         print()
-        
+
         start_time = datetime.now()
         end_time = start_time + timedelta(minutes=duration_minutes)
         last_count = baseline_count
-        
+
         check_interval = 10  # Check every 10 seconds
-        
+
         while datetime.now() < end_time:
             try:
                 # Create fresh connection for each check (IMAP-server friendly)
                 client = IMAPClient(hostname, port, use_tls=True)
                 await client.connect()
                 await client.authenticate({"username": username, "password": password})
-                
+
                 current_info = await client.select_mailbox("INBOX")
                 current_count = current_info.get("exists", 0)
-                
+
                 if current_count > last_count:
                     new_emails = current_count - last_count
                     timestamp = datetime.now().strftime("%H:%M:%S")
-                    
+
                     print(f"\n🚨 ALERT [{timestamp}]: {new_emails} new email(s) detected!")
                     print(f"📊 Count: {last_count} → {current_count}")
-                    
+
                     # Try to get basic info about the new emails
                     try:
                         for msg_num in range(current_count - new_emails + 1, current_count + 1):
-                            messages = await client.fetch_messages(
-                                str(msg_num), 
-                                "ENVELOPE"
-                            )
-                            
+                            messages = await client.fetch_messages(str(msg_num), "ENVELOPE")
+
                             if messages:
                                 # Simple envelope parsing (this could be enhanced)
-                                raw_data = str(messages[0].get('fetch_data', ''))
+                                raw_data = str(messages[0].get("fetch_data", ""))
                                 print(f"📧 Message #{msg_num}: {raw_data[:100]}...")
-                    
+
                     except Exception as e:
                         print(f"⚠️ Could not get new message details: {e}")
-                    
+
                     last_count = current_count
                     print()
-                    
+
                 elif current_count < last_count:
                     # Messages were deleted
                     deleted_count = last_count - current_count
                     timestamp = datetime.now().strftime("%H:%M:%S")
                     print(f"🗑️ [{timestamp}]: {deleted_count} message(s) deleted")
                     last_count = current_count
-                
+
                 else:
                     # Show we're still monitoring
                     elapsed = datetime.now() - start_time
                     remaining = end_time - datetime.now()
-                    print(f"⏱️ [{elapsed.seconds//60:02d}:{elapsed.seconds%60:02d}] Monitoring... ({remaining.seconds//60:02d}:{remaining.seconds%60:02d} remaining)", end='\r')
-                
+                    print(
+                        f"⏱️ [{elapsed.seconds // 60:02d}:{elapsed.seconds % 60:02d}] Monitoring... ({remaining.seconds // 60:02d}:{remaining.seconds % 60:02d} remaining)",
+                        end="\r",
+                    )
+
                 await client.disconnect()
                 await anyio.sleep(check_interval)
-                
+
             except Exception as e:
                 print(f"\n❌ Error during monitoring: {e}")
                 await anyio.sleep(30)  # Wait longer on error
-        
+
         print(f"\n\n⏰ {duration_minutes}-minute monitoring completed!")
         return True
-        
+
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
 
 async def main():
     """Main function."""
-    
+
     # Get duration from command line or use default
     duration = 5  # Default 5 minutes
     if len(sys.argv) > 1:
@@ -149,7 +152,7 @@ async def main():
             duration = int(sys.argv[1])
         except ValueError:
             print("Invalid duration. Using default of 5 minutes.")
-    
+
     print("=" * 80)
     print("🎧 AnyRFC Real-Time Email Monitoring")
     print("=" * 80)
@@ -163,9 +166,9 @@ async def main():
     print("• Basic email information extraction")
     print("• Graceful connection management")
     print()
-    
+
     success = await monitor_emails(duration)
-    
+
     print()
     print("=" * 80)
     if success:

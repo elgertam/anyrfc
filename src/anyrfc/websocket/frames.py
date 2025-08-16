@@ -239,9 +239,7 @@ class WSFrameBuilder:
     @staticmethod
     def text_frame(text: str, fin: bool = True) -> WSFrame:
         """Create text frame."""
-        return WSFrame(
-            fin=fin, opcode=OpCode.TEXT, payload=text.encode("utf-8"), masked=True
-        )
+        return WSFrame(fin=fin, opcode=OpCode.TEXT, payload=text.encode("utf-8"), masked=True)
 
     @staticmethod
     def binary_frame(data: bytes, fin: bool = True) -> WSFrame:
@@ -263,9 +261,7 @@ class WSFrameBuilder:
         return WSFrame(fin=True, opcode=OpCode.PONG, payload=payload, masked=True)
 
     @staticmethod
-    def close_frame(
-        code: CloseCode = CloseCode.NORMAL_CLOSURE, reason: str = ""
-    ) -> WSFrame:
+    def close_frame(code: CloseCode = CloseCode.NORMAL_CLOSURE, reason: str = "") -> WSFrame:
         """Create close frame."""
         payload = struct.pack("!H", code.value)
         if reason:
