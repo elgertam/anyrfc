@@ -4,7 +4,17 @@ from .client import IMAPClient, IMAPState
 from .commands import IMAPCommandBuilder, IMAPCommand, IMAPSequenceSet
 from .responses import IMAPResponseParser, IMAPResponse, IMAPStatus
 from .mailbox import MailboxManager, MailboxInfo, MailboxAttribute
-from .messages import MessageManager, MessageInfo, MessageFlag
+from .messages import (
+    MessageManager,
+    MessageInfo,
+    MessageFlag,
+    FetchItem,
+    StoreAction,
+    SearchCriteria,
+    build_fetch_items,
+    build_flag_list,
+    build_search_criteria,
+)
 from .extensions import ExtensionManager, IdleExtension, SortExtension
 from .compliance import RFC9051Compliance
 
@@ -23,6 +33,12 @@ __all__ = [
     "MessageManager",
     "MessageInfo",
     "MessageFlag",
+    "FetchItem",
+    "StoreAction",
+    "SearchCriteria",
+    "build_fetch_items",
+    "build_flag_list",
+    "build_search_criteria",
     "ExtensionManager",
     "IdleExtension",
     "SortExtension",

@@ -32,7 +32,15 @@ try:
 except ImportError:
     print("Warning: python-dotenv not installed. Using os.environ directly.")
 
-from anyrfc.email.imap import IMAPClient
+from anyrfc.email.imap import (
+    IMAPClient,
+    MessageFlag,
+    FetchItem,
+    StoreAction,
+    build_search_criteria,
+    build_flag_list,
+    build_fetch_items,
+)
 from anyrfc.email.imap.commands import IMAPCommandBuilder
 from anyrfc.parsing import IMAPParser
 
@@ -97,8 +105,8 @@ async def find_and_mark_email_as_read(subject: str) -> bool:
         # Search for emails with the specific subject
         print(f"Searching for emails with subject: '{subject}'...")
 
-        # Use IMAP SEARCH command to find emails by subject
-        search_command = f'SUBJECT "{subject}"'
+        # Use the new enum-based search API for better ergonomics
+        search_command = build_search_criteria(subject=subject)
 
         # Send the search command
         with anyio.move_on_after(30):
@@ -116,8 +124,9 @@ async def find_and_mark_email_as_read(subject: str) -> bool:
 
         # Fetch the email to verify it's the right one
         print("Fetching email details to verify...")
+        fetch_items = build_fetch_items(FetchItem.ENVELOPE, FetchItem.FLAGS)
         with anyio.move_on_after(30):
-            messages = await client.fetch_messages(str(message_uid), "(ENVELOPE FLAGS)")
+            messages = await client.fetch_messages(str(message_uid), fetch_items)
 
         if not messages:
             print("Error: Could not fetch email details")
@@ -158,7 +167,7 @@ async def find_and_mark_email_as_read(subject: str) -> bool:
 
                 # Check if email is already marked as read
                 current_flags = fetch_response.flags or []
-                if "\\Seen" in current_flags:
+                if MessageFlag.SEEN.value in current_flags:
                     print("📧 Email is already marked as read")
                     return True
                 else:
@@ -168,17 +177,18 @@ async def find_and_mark_email_as_read(subject: str) -> bool:
         print(f"\nMarking email UID {message_uid} as read...")
 
         with anyio.move_on_after(30):
-            # Use STORE command to add the \Seen flag
-            # Format: STORE uid FLAGS (\Seen)
-            store_command = IMAPCommandBuilder.store(str(message_uid), "FLAGS", "(\\Seen)")
+            # Use STORE command with enum-based flag handling
+            flag_list = build_flag_list(MessageFlag.SEEN)
+            store_command = IMAPCommandBuilder.store(str(message_uid), StoreAction.REPLACE.value, flag_list)
             await client._send_command(store_command)
 
         print("✓ Email marked as read successfully!")
 
         # Verify the change by fetching the email again
         print("Verifying the change...")
+        verify_fetch_items = build_fetch_items(FetchItem.FLAGS)
         with anyio.move_on_after(30):
-            verify_messages = await client.fetch_messages(str(message_uid), "(FLAGS)")
+            verify_messages = await client.fetch_messages(str(message_uid), verify_fetch_items)
 
         if verify_messages:
             verify_message = verify_messages[0]
@@ -187,7 +197,7 @@ async def find_and_mark_email_as_read(subject: str) -> bool:
                 verify_result = parser.parse_fetch_response(verify_raw)
                 if verify_result.success:
                     verify_flags = verify_result.value.flags or []
-                    if "\\Seen" in verify_flags:
+                    if MessageFlag.SEEN.value in verify_flags:
                         print("✅ Verification successful: Email is now marked as read!")
                         return True
                     else:

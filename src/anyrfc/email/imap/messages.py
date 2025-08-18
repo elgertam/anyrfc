@@ -23,6 +23,128 @@ class MessageFlag(Enum):
     RECENT = "\\Recent"
 
 
+class FetchItem(Enum):
+    """IMAP FETCH data items per RFC 9051 Section 6.4.5."""
+
+    FLAGS = "FLAGS"
+    UID = "UID"
+    INTERNALDATE = "INTERNALDATE"
+    RFC822_SIZE = "RFC822.SIZE"
+    ENVELOPE = "ENVELOPE"
+    BODYSTRUCTURE = "BODYSTRUCTURE"
+    BODY_PEEK_HEADER = "BODY.PEEK[HEADER]"
+    BODY_HEADER = "BODY[HEADER]"
+    BODY_TEXT = "BODY[TEXT]"
+    BODY_FULL = "BODY[]"
+    RFC822_HEADER = "RFC822.HEADER"
+    RFC822_TEXT = "RFC822.TEXT"
+    RFC822 = "RFC822"
+
+
+class StoreAction(Enum):
+    """IMAP STORE flag actions per RFC 9051 Section 6.4.6."""
+
+    REPLACE = "FLAGS"
+    ADD = "+FLAGS"
+    REMOVE = "-FLAGS"
+    REPLACE_SILENT = "FLAGS.SILENT"
+    ADD_SILENT = "+FLAGS.SILENT"
+    REMOVE_SILENT = "-FLAGS.SILENT"
+
+
+class SearchCriteria(Enum):
+    """Common IMAP SEARCH criteria per RFC 9051 Section 6.4.4."""
+
+    ALL = "ALL"
+    ANSWERED = "ANSWERED"
+    UNANSWERED = "UNANSWERED"
+    DELETED = "DELETED"
+    UNDELETED = "UNDELETED"
+    DRAFT = "DRAFT"
+    UNDRAFT = "UNDRAFT"
+    FLAGGED = "FLAGGED"
+    UNFLAGGED = "UNFLAGGED"
+    NEW = "NEW"
+    OLD = "OLD"
+    RECENT = "RECENT"
+    SEEN = "SEEN"
+    UNSEEN = "UNSEEN"
+    LARGER = "LARGER"
+    SMALLER = "SMALLER"
+    SINCE = "SINCE"
+    BEFORE = "BEFORE"
+    ON = "ON"
+    SENTBEFORE = "SENTBEFORE"
+    SENTON = "SENTON"
+    SENTSINCE = "SENTSINCE"
+    FROM = "FROM"
+    TO = "TO"
+    CC = "CC"
+    BCC = "BCC"
+    SUBJECT = "SUBJECT"
+    BODY = "BODY"
+    TEXT = "TEXT"
+    KEYWORD = "KEYWORD"
+    UNKEYWORD = "UNKEYWORD"
+    HEADER = "HEADER"
+
+
+# Utility functions for enum usage
+def build_fetch_items(*items: Union[FetchItem, str]) -> str:
+    """Build a FETCH items string from FetchItem enums or strings."""
+    parts = []
+    for item in items:
+        if isinstance(item, FetchItem):
+            parts.append(item.value)
+        else:
+            parts.append(str(item))
+    return " ".join(parts)
+
+
+def build_flag_list(*flags: Union[MessageFlag, str]) -> str:
+    """Build a flag list string from MessageFlag enums or strings."""
+    parts = []
+    for flag in flags:
+        if isinstance(flag, MessageFlag):
+            parts.append(flag.value)
+        else:
+            parts.append(str(flag))
+    return f"({' '.join(parts)})"
+
+
+def build_search_criteria(*criteria: Union[SearchCriteria, str], **kwargs: Any) -> str:
+    """Build a search criteria string with keyword arguments for values."""
+    parts = []
+
+    # Add enum/string criteria
+    for criterion in criteria:
+        if isinstance(criterion, SearchCriteria):
+            parts.append(criterion.value)
+        else:
+            parts.append(str(criterion))
+
+    # Add keyword-based criteria
+    for key, value in kwargs.items():
+        if key == "since":
+            parts.append(f"SINCE {value}")
+        elif key == "before":
+            parts.append(f"BEFORE {value}")
+        elif key == "from_":
+            parts.append(f'FROM "{value}"')
+        elif key == "to":
+            parts.append(f'TO "{value}"')
+        elif key == "subject":
+            parts.append(f'SUBJECT "{value}"')
+        elif key == "body":
+            parts.append(f'BODY "{value}"')
+        elif key == "larger":
+            parts.append(f"LARGER {value}")
+        elif key == "smaller":
+            parts.append(f"SMALLER {value}")
+
+    return " ".join(parts)
+
+
 @dataclass
 class MessageEnvelope:
     """IMAP message envelope structure per RFC 9051."""
