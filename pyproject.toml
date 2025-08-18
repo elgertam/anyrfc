@@ -1,6 +1,6 @@
 [project]
 name = "anyrfc"
-version = "0.3.0"
+version = "0.3.1"
 description = "Complete, RFC-compliant protocol clients using AnyIO structured concurrency"
 readme = "README.md"
 requires-python = ">=3.9"
