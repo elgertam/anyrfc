@@ -40,9 +40,10 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "anyio>=4.5.1,<4.6.0",
+    "anyio>=4.5.1",
     "httpx>=0.25.0",
     "typing-extensions>=4.0.0",
+    "exceptiongroup>=1.0.0; python_version<'3.11'",
 ]
 
 [project.urls]

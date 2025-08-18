@@ -16,20 +16,9 @@ import pytest
 import time
 import gc
 import asyncio
-import sys
 
-# ExceptionGroup was introduced in Python 3.11
-if sys.version_info >= (3, 11):
-    import builtins
-
-    _ExceptionGroup = getattr(builtins, "ExceptionGroup", Exception)
-else:
-    # For Python 3.9 and 3.10, we can use BaseExceptionGroup from exceptiongroup backport
-    try:
-        from exceptiongroup import ExceptionGroup as _ExceptionGroup
-    except ImportError:
-        # If backport not available, just use Exception as fallback
-        _ExceptionGroup = Exception
+# Use the compatibility layer for exception handling
+from anyrfc.core.anyio_compat import get_exception_group_types
 
 from anyrfc.websocket.state_machine import WebSocketStateMachine, WSState, WSEvent
 
@@ -77,7 +66,7 @@ class TestTaskGroupCancellation:
         async def normal_task():
             await anyio.sleep(1)  # Should be cancelled
 
-        with pytest.raises((ValueError, _ExceptionGroup)):
+        with pytest.raises((ValueError, *get_exception_group_types())):
             async with anyio.create_task_group() as tg:
                 tg.start_soon(failing_task)
                 tg.start_soon(normal_task)
